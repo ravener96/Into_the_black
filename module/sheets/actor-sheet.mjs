@@ -269,4 +269,52 @@ export class itbActorSheet extends ActorSheet {
       return roll;
     }
   }
+
+  _onDragStart(event) {
+    console.log("Drop data structure:", event.dataTransfer.getData("text/plain"));
+    // This is the item that was dragged
+    const li = event.currentTarget;
+    if (event.target.classList.contains("content-link")) return;
+
+    // Get the item data
+    const itemId = li.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+    
+    // Set the drag data
+    event.dataTransfer.setData("text/plain", JSON.stringify({
+      type: "Item",
+      uuid: item.uuid,
+      actorId: this.actor.id,  // This is needed to identify the source
+      data: item.toObject()
+    }));
+  }
+
+  async _onDropItem(event, data) {
+    console.log("Drop item:", data);
+    // Call the base implementation to add the item to this actor
+    const dropResult = await super._onDropItem(event, data);
+
+    // Remove the item from the source actor if it was dragged from another actor
+    if (data.actorId && data.actorId !== this.id) {
+      const sourceActor = game.actors.get(data.actorId);
+      if (sourceActor) {
+        // Try to get the item ID from the drag data
+        let itemId = data.data?._id;
+        // Fallback: try to extract from uuid if not present
+        if (!itemId && data.uuid) {
+          const parts = data.uuid.split(".");
+          itemId = parts[parts.length - 1];
+        }
+        const originalItem = sourceActor.items.get(itemId);
+        if (originalItem) {
+          await originalItem.delete();
+          // Optionally, you can show a notification about the transfer
+          //ui.notifications.info(`${originalItem.name} transferred from ${sourceActor.name} to ${this.name}.`);
+        }
+      }
+    }
+
+    return dropResult;
+  }
 }
