@@ -12,8 +12,8 @@ export class itbActorSheet extends ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ['into-the-black', 'sheet', 'actor'],
-      width: 600,
-      height: 600,
+      width: 900,  // Increased width to accommodate the 2D layout
+      height: 700, // Increased height to fit all body parts
       tabs: [
         {
           navSelector: '.sheet-tabs',
@@ -82,6 +82,9 @@ export class itbActorSheet extends ActorSheet {
       // as well as any items
       this.actor.allApplicableEffects()
     );
+
+    // Apply saved user settings
+    this._applyUserSettings();
 
     return context;
   }
@@ -191,6 +194,9 @@ export class itbActorSheet extends ActorSheet {
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Handle arm position slider
+    html.find('.arm-position-slider').on('input', this._onArmPositionSlider.bind(this));
 
     // Render the item sheet for viewing/editing prior to the editable check.
     html.on('click', '.item-edit', (ev) => {
@@ -418,4 +424,62 @@ export class itbActorSheet extends ActorSheet {
       return dropResult;
     }
   }
+
+  /**
+   * Handle arm position slider adjustments
+   * @param {Event} event - The slider input event
+   * @private
+   */
+  _onArmPositionSlider(event) {
+    const slider = event.currentTarget;
+    const value = slider.value;
+    const valueDisplay = document.getElementById(slider.id + '-value');
+    
+    // Update the display value
+    valueDisplay.textContent = `${value}px`;
+    
+    // Update the CSS variable
+    document.documentElement.style.setProperty('--arm-offset', `${value}px`);
+    
+    // Store the preference in user flags if needed
+    if (this.actor.isOwner) {
+      this.actor.setFlag('into-the-black', 'armOffset', value);
+    }
+  }
+
+  /**
+   * Apply saved position settings when the sheet loads
+   * @private
+   */
+  _applyUserSettings() {
+    // Apply arm offset from saved flag if available
+    const armOffset = this.actor.getFlag('into-the-black', 'armOffset');
+    if (armOffset !== undefined) {
+      document.documentElement.style.setProperty('--arm-offset', `${armOffset}px`);
+      
+      // Also update the slider position and display text when sheet renders
+      setTimeout(() => {
+        const slider = document.getElementById('arm-offset');
+        if (slider) {
+          slider.value = armOffset;
+          document.getElementById('arm-offset-value').textContent = `${armOffset}px`;
+        }
+      }, 0);
+    }
+  }
 }
+
+export const registerHandlebarsHelpers = () => {
+  // Add a times helper to repeat block content
+  Handlebars.registerHelper('times', function(n, block) {
+    let accum = '';
+    for(let i = 0; i < n; ++i) {
+      block.data.index = i;
+      accum += block.fn(this);
+    }
+    return accum;
+  });
+}
+
+// Call the function immediately so the helper is registered
+registerHandlebarsHelpers();

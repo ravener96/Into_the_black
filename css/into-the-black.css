@@ -278,6 +278,8 @@
   overflow-y: auto;
   scrollbar-width: thin;
   color: #444;
+  max-height: 210px;  /* Adjust based on your item height * 6 + padding */
+  min-height: 210px;
 }
 .into-the-black .items-list .item-list {
   list-style: none;
@@ -298,6 +300,9 @@
   white-space: nowrap;
   overflow-x: hidden;
 }
+.into-the-black .items-list .item-name h4 {
+  font-size: 12px;
+}
 .into-the-black .items-list .item-controls {
   display: flex;
   flex: 0 0 100px;
@@ -310,8 +315,9 @@
 }
 .into-the-black .items-list .item {
   align-items: center;
-  padding: 0 2px;
+  padding: 1px;
   border-bottom: 1px solid #c9c7b8;
+  line-height: 24px;
 }
 .into-the-black .items-list .item:last-child {
   border-bottom: none;
@@ -363,4 +369,133 @@
 }
 .into-the-black .effects .item .effect-controls {
   border: none;
+}
+
+/* Body Part Layout Styles */
+.body-layout {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(100px, 1fr));
+  grid-template-rows: auto auto auto;
+  gap: 10px;
+  width: 100%;
+  max-width: 1600px; /* Add a max-width to prevent excessive stretching */
+  margin: 0 auto;
+  padding: 10px;
+}
+
+/* Layout positioning */
+.body-head {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.body-torso-l {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.body-torso-c {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.body-torso-r {
+  grid-column: 4;
+  grid-row: 2;
+}
+
+.body-arm-l {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: var(--arm-offset, 30px);
+}
+
+.body-arm-r {
+  grid-column: 5;
+  grid-row: 2;
+  margin-top: var(--arm-offset, 30px);
+}
+
+.body-leg-l {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.body-leg-r {
+  grid-column: 4;
+  grid-row: 3;
+}
+
+/* Style for each body part section */
+.body-part {
+  border: 1px solid #7a7971;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 5px;
+}
+
+.body-part h3 {
+  text-align: center;
+  border-bottom: 1px solid #7a7971;
+  margin-top: 0;
+  padding-bottom: 5px;
+  font-size: 14px;
+}
+
+/* Add some visual styling to represent body parts */
+.body-head .items-header {
+  background-color: rgba(100, 149, 237, 0.2);  /* Light blue for head */
+}
+
+.body-torso-c .items-header, 
+.body-torso-l .items-header,
+.body-torso-r .items-header {
+  background-color: rgba(205, 133, 63, 0.2);  /* Light brown for torso */
+}
+
+.body-arm-l .items-header,
+.body-arm-r .items-header {
+  background-color: rgba(144, 238, 144, 0.2);  /* Light green for arms */
+}
+
+.body-leg-l .items-header,
+.body-leg-r .items-header {
+  background-color: rgba(255, 160, 122, 0.2);  /* Light salmon for legs */
+}
+
+/* CSS Variables for adjustable positioning */
+:root {
+  --arm-offset: 30px;  /* Default arm offset from top */
+}
+
+.empty-item {
+  height: 28px;
+  opacity: 0.2;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-bottom: 1px dashed #c9c7b8;
+}
+
+.layout-config {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #7a7971;
+}
+
+.layout-config label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.layout-config input[type="range"] {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.layout-config span {
+  min-width: 40px;
+  text-align: right;
 }
