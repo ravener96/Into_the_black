@@ -13,7 +13,7 @@
           value='{{item.name}}'
           placeholder='Name'
         /></h1>
-      <div class='grid grid-2col'>
+      <div class='grid grid-3col'>
         <div class='resource'>
           <label class='resource-label'>Quantity</label>
           <input
@@ -32,6 +32,19 @@
             data-dtype='Number'
           />
         </div>
+        <div class='resource'>
+          <label class='resource-label'>Location</label>
+          <select name='system.location' data-dtype='String'>
+            <option value='head' {{#if (eq system.location "head")}}selected{{/if}}>Head</option>
+            <option value='torso_c' {{#if (eq system.location "torso_c")}}selected{{/if}}>Torso (Center)</option>
+            <option value='torso_l' {{#if (eq system.location "torso_l")}}selected{{/if}}>Torso (Left)</option>
+            <option value='torso_r' {{#if (eq system.location "torso_r")}}selected{{/if}}>Torso (Right)</option>
+            <option value='arm_r' {{#if (eq system.location "arm_r")}}selected{{/if}}>Right Arm</option>
+            <option value='arm_l' {{#if (eq system.location "arm_l")}}selected{{/if}}>Left Arm</option>
+            <option value='leg_r' {{#if (eq system.location "leg_r")}}selected{{/if}}>Right Leg</option>
+            <option value='leg_l' {{#if (eq system.location "leg_l")}}selected{{/if}}>Left Leg</option>
+          </select>
+        </div>
       </div>
     </div>
   </header>
@@ -47,7 +60,6 @@
 
     {{! Description Tab }}
     <div class='tab' data-group='primary' data-tab='description'>
-      {{! Editors must receive enriched text data from getData to properly handle rolls }}
       {{editor
         enrichedDescription
         target='system.description'
@@ -92,7 +104,6 @@
             />
           </div>
         </div>
-
       </div>
     </div>
   </section>

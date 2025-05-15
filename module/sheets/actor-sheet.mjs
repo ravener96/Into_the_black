@@ -102,8 +102,16 @@ export class itbActorSheet extends ActorSheet {
    * @param {object} context The context object to mutate
    */
   _prepareItems(context) {
-    // Initialize containers.
-    const gear = [];
+    // Initialize containers for each body part location
+    const items_head = [];
+    const items_torso_c = [];
+    const items_torso_l = [];
+    const items_torso_r = [];
+    const items_arm_r = [];
+    const items_arm_l = [];
+    const items_leg_r = [];
+    const items_leg_l = [];
+    
     const features = [];
     const spells = {
       0: [],
@@ -121,9 +129,37 @@ export class itbActorSheet extends ActorSheet {
     // Iterate through items, allocating to containers
     for (let i of context.items) {
       i.img = i.img || Item.DEFAULT_ICON;
-      // Append to gear.
+      // Append to appropriate gear container based on location
       if (i.type === 'item') {
-        gear.push(i);
+        switch(i.system.location) {
+          case 'head':
+            items_head.push(i);
+            break;
+          case 'torso_c':
+            items_torso_c.push(i);
+            break;
+          case 'torso_l':
+            items_torso_l.push(i);
+            break;
+          case 'torso_r':
+            items_torso_r.push(i);
+            break;
+          case 'arm_r':
+            items_arm_r.push(i);
+            break;
+          case 'arm_l':
+            items_arm_l.push(i);
+            break;
+          case 'leg_r':
+            items_leg_r.push(i);
+            break;
+          case 'leg_l':
+            items_leg_l.push(i);
+            break;
+          default:
+            // For backward compatibility, assign to head if undefined
+            items_head.push(i);
+        }
       }
       // Append to features.
       else if (i.type === 'feature') {
@@ -138,7 +174,14 @@ export class itbActorSheet extends ActorSheet {
     }
 
     // Assign and return
-    context.gear = gear;
+    context.items_head = items_head;
+    context.items_torso_c = items_torso_c;
+    context.items_torso_l = items_torso_l;
+    context.items_torso_r = items_torso_r;
+    context.items_arm_r = items_arm_r;
+    context.items_arm_l = items_arm_l;
+    context.items_leg_r = items_leg_r;
+    context.items_leg_l = items_leg_l;
     context.features = features;
     context.spells = spells;
   }
@@ -231,6 +274,12 @@ export class itbActorSheet extends ActorSheet {
       type: type,
       system: data,
     };
+    
+    // Set the location based on the list it was created from
+    if (type === 'item' && data.location) {
+      itemData.system.location = data.location;
+    }
+    
     // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system['type'];
 
@@ -292,29 +341,81 @@ export class itbActorSheet extends ActorSheet {
 
   async _onDropItem(event, data) {
     console.log("Drop item:", data);
-    // Call the base implementation to add the item to this actor
-    const dropResult = await super._onDropItem(event, data);
-
-    // Remove the item from the source actor if it was dragged from another actor
-    if (data.actorId && data.actorId !== this.id) {
-      const sourceActor = game.actors.get(data.actorId);
-      if (sourceActor) {
-        // Try to get the item ID from the drag data
-        let itemId = data.data?._id;
-        // Fallback: try to extract from uuid if not present
-        if (!itemId && data.uuid) {
-          const parts = data.uuid.split(".");
-          itemId = parts[parts.length - 1];
-        }
-        const originalItem = sourceActor.items.get(itemId);
-        if (originalItem) {
-          await originalItem.delete();
-          // Optionally, you can show a notification about the transfer
-          //ui.notifications.info(`${originalItem.name} transferred from ${sourceActor.name} to ${this.name}.`);
-        }
+    
+    // Get the target list to determine where the item is being dropped
+    const targetElement = event.target.closest('.items-list');
+    let targetLocation = null;
+    
+    if (targetElement) {
+      if (targetElement.id === 'items-head') {
+        targetLocation = 'head';
+      } else if (targetElement.id === 'items-torso-c') {
+        targetLocation = 'torso_c';
+      } else if (targetElement.id === 'items-torso-l') {
+        targetLocation = 'torso_l';
+      } else if (targetElement.id === 'items-torso-r') {
+        targetLocation = 'torso_r';
+      } else if (targetElement.id === 'items-arm-r') {
+        targetLocation = 'arm_r';
+      } else if (targetElement.id === 'items-arm-l') {
+        targetLocation = 'arm_l';
+      } else if (targetElement.id === 'items-leg-r') {
+        targetLocation = 'leg_r';
+      } else if (targetElement.id === 'items-leg-l') {
+        targetLocation = 'leg_l';
       }
     }
+    
+    // Check if this is a move within the same actor
+    const isSameActor = data.actorId === this.actor.id;
+    
+    if (isSameActor && data.data) {
+      // If it's the same actor, we want to avoid duplication regardless of where it's dropped
+      let itemId = data.data._id;
+      const item = this.actor.items.get(itemId);
+      
+      if (item) {
+        // Only update the location if we have a targetLocation and it differs from current
+        if (targetLocation && item.system.location !== targetLocation) {
+          // Location is changing, update it
+          return await item.update({'system.location': targetLocation});
+        } else {
+          // Either no targetLocation specified or location is the same
+          // Either way, prevent duplicating the item by returning null
+          return null;
+        }
+      }
+    } else {
+      // For cross-actor transfers or dropping on non-location elements
+      // If we found a target location and have item data to update for a new item
+      if (targetLocation && data.data) {
+        // Update the item data with the new location before it's added
+        data.data.system = data.data.system || {};
+        data.data.system.location = targetLocation;
+      }
+      
+      // Call the base implementation to add the item to this actor
+      const dropResult = await super._onDropItem(event, data);
 
-    return dropResult;
+      // Remove the item from the source actor only if it was dragged from another actor
+      if (!isSameActor && data.actorId) {
+        const sourceActor = game.actors.get(data.actorId);
+        if (sourceActor) {
+          // Try to get the item ID from the drag data
+          let itemId = data.data?._id;
+          // Fallback: try to extract from uuid if not present
+          if (!itemId && data.uuid) {
+            const parts = data.uuid.split(".");
+            itemId = parts[parts.length - 1];
+          }
+          const originalItem = sourceActor.items.get(itemId);
+          if (originalItem) {
+            await originalItem.delete();
+          }
+        }
+      }
+
+      return dropResult;
+    }
   }
 }
