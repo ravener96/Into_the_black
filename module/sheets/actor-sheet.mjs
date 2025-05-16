@@ -353,23 +353,7 @@ export class itbActorSheet extends ActorSheet {
     let targetLocation = null;
     
     if (targetElement) {
-      if (targetElement.id === 'items-head') {
-        targetLocation = 'head';
-      } else if (targetElement.id === 'items-torso-c') {
-        targetLocation = 'torso_c';
-      } else if (targetElement.id === 'items-torso-l') {
-        targetLocation = 'torso_l';
-      } else if (targetElement.id === 'items-torso-r') {
-        targetLocation = 'torso_r';
-      } else if (targetElement.id === 'items-arm-r') {
-        targetLocation = 'arm_r';
-      } else if (targetElement.id === 'items-arm-l') {
-        targetLocation = 'arm_l';
-      } else if (targetElement.id === 'items-leg-r') {
-        targetLocation = 'leg_r';
-      } else if (targetElement.id === 'items-leg-l') {
-        targetLocation = 'leg_l';
-      }
+      targetLocation = targetElement.dataset.location;
     }
     
     // Check if this is a move within the same actor
@@ -381,13 +365,10 @@ export class itbActorSheet extends ActorSheet {
       const item = this.actor.items.get(itemId);
       
       if (item) {
-        // Only update the location if we have a targetLocation and it differs from current
+        // Always update the location if we have a targetLocation
         if (targetLocation && item.system.location !== targetLocation) {
-          // Location is changing, update it
           return await item.update({'system.location': targetLocation});
         } else {
-          // Either no targetLocation specified or location is the same
-          // Either way, prevent duplicating the item by returning null
           return null;
         }
       }
@@ -478,6 +459,12 @@ export const registerHandlebarsHelpers = () => {
       accum += block.fn(this);
     }
     return accum;
+  });
+
+  // Add this to your Handlebars helpers registration
+  Handlebars.registerHelper('listHeight', function(emptySpots) {
+    // +1 for the header row, 28px per row (adjust if your row height is different)
+    return ((parseInt(emptySpots, 10) + 1) * 28);
   });
 }
 

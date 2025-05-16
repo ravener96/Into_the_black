@@ -15,6 +15,12 @@ import * as models from './data/_module.mjs';
 /* -------------------------------------------- */
 
 Hooks.once('init', function () {
+  //init some neessecary files
+
+  loadTemplates([
+    'systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs'
+  ]);
+
   // Add utility classes to the global game object so that they're more easily
   // accessible in global contexts.
   game.intotheblack = {
