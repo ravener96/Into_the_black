@@ -55,8 +55,9 @@ Hooks.once('init', function () {
   CONFIG.Item.dataModels = {
     item: models.itbItem,
     feature: models.itbFeature,
-    spell: models.itbSpell
-  }
+    spell: models.itbSpell,
+    mech: models.itbMech
+  };
 
   // Active Effects are never copied to the Actor,
   // but will still apply to the Actor from within the Item

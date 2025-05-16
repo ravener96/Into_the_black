@@ -305,7 +305,7 @@
 }
 .into-the-black .items-list .item-controls {
   display: flex;
-  flex: 0 0 100px;
+  flex: 0 0 30px;
   justify-content: flex-end;
 }
 .into-the-black .items-list .item-controls a {

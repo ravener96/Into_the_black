@@ -47,5 +47,30 @@
   "gridDistance": 5,
   "gridUnits": "ft",
   "primaryTokenAttribute": "health",
-  "secondaryTokenAttribute": "power"
+  "secondaryTokenAttribute": "power",
+
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": ["details.bio", "details.gmnotes"]
+      },
+      "npc": {
+        "htmlFields": ["details.bio", "details.gmnotes"]
+      }
+    },
+    "Item": {
+      "item": {
+        "htmlFields": ["details.description"]
+      },
+      "feature": {
+        "htmlFields": ["details.description"]
+      },
+      "spell": {
+        "htmlFields": ["details.description"]
+      },
+      "mech": {
+        "htmlFields": ["details.description"]
+      }
+    }
+  }
 }

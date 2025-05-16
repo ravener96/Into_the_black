@@ -1,0 +1,76 @@
+{{!-- filepath: templates/actor/parts/mech-body-part-list.hbs --}}
+<div class="body-part {{bodyClass}}" style="margin-top: {{topPad}}px;">
+  <h3>{{bodyLabel}}
+        <div class='item-controls'>
+        <a
+          class="item-control item-create"
+          title="{{localize 'DOCUMENT.Create' type='Item'}}"
+          data-type="item"
+          data-location="{{bodyKey}}"
+        >
+          <i class="fas fa-plus"></i>
+        </a>
+      </div>
+  </h3>
+  <ol class='items-list'
+    id='items-{{bodyKey}}'
+    data-location='{{bodyKey}}'
+    style="min-height: {{listHeight empty-spots}}px; max-height: {{listHeight empty-spots}}px;">
+    
+    <!--
+    <li class='item flexrow items-header'>
+      <div class='item-name'>{{localize 'Name'}}</div>
+      <div class='item-formula'>{{localize 'Roll Formula'}}</div>
+
+    </li>
+    -->
+    {{#each items as |item id|}}
+      <li class='item flexrow' data-item-id='{{item._id}}'>
+        <div class='item-name'>
+          <div class='item-image'>
+
+            <!--
+
+            <a class='rollable' data-roll-type='item'>
+              <img
+                src='{{item.img}}'
+                title='{{item.name}}'
+                width='24'
+                height='24'
+              />
+            </a>
+            -->
+          <a
+            class='item-control item-edit'
+            title='{{localize "DOCUMENT.Update" type="Item"}}'
+          >
+            <img
+              src='{{item.img}}'
+              title='{{item.name}}'
+              width='24'
+              height='24'
+            />
+          </a>
+          </div>
+          <h4>{{item.name}}</h4>
+        </div>
+        <div class='item-controls'>
+
+          <a
+            class='item-control item-delete'
+            title='{{localize "DOCUMENT.Delete" type="Item"}}'
+          >
+            <i class='fas fa-trash'></i>
+          </a>
+        </div>
+      </li>
+    
+    {{else}}
+      {{#times empty-spots}}
+        <li class='item flexrow empty-item'><div class='item-name'></div></li>
+      {{/times}}
+    {{/each}}
+    
+    
+  </ol>
+</div>
