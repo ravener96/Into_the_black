@@ -373,57 +373,47 @@
 
 /* Body Part Layout Styles */
 .body-layout {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(100px, 1fr));
-  grid-template-rows: auto auto auto;
+  display: flex;
+  flex-direction: row;
   gap: 10px;
   width: 100%;
-  max-width: 1600px; /* Add a max-width to prevent excessive stretching */
+  max-width: 1600px;
   margin: 0 auto;
   padding: 10px;
 }
 
-/* Layout positioning */
-.body-head {
-  grid-column: 3;
-  grid-row: 1;
+/* Column containers */
+.body-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
 }
 
-.body-torso-l {
-  grid-column: 2;
-  grid-row: 2;
+.body-column-center {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  align-items: center;
 }
 
-.body-torso-c {
-  grid-column: 3;
-  grid-row: 2;
+/* Clear the old grid positioning */
+.body-head, .body-torso-l, .body-torso-c, .body-torso-r, 
+.body-arm-l, .body-arm-r, .body-leg-l, .body-leg-r {
+  grid-column: unset;
+  grid-row: unset;
 }
 
-.body-torso-r {
-  grid-column: 4;
-  grid-row: 2;
+/* Set width for all body parts to keep consistent column width */
+.body-part {
+  width: 100%;
+  min-width: 180px;
 }
 
-.body-arm-l {
-  grid-column: 1;
-  grid-row: 2;
-  margin-top: var(--arm-offset, 30px);
-}
-
-.body-arm-r {
-  grid-column: 5;
-  grid-row: 2;
-  margin-top: var(--arm-offset, 30px);
-}
-
-.body-leg-l {
-  grid-column: 2;
-  grid-row: 3;
-}
-
-.body-leg-r {
-  grid-column: 4;
-  grid-row: 3;
+/* Remove the arm offset since we're using columns now */
+.body-arm-l, .body-arm-r {
+  margin-top: 0;
 }
 
 /* Style for each body part section */
