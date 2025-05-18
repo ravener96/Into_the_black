@@ -54,6 +54,7 @@ Hooks.once('init', function () {
   CONFIG.Item.documentClass = itbItem;
   CONFIG.Item.dataModels = {
     item: models.itbItem,
+    part: models.itbPart,
     feature: models.itbFeature,
     spell: models.itbSpell,
     mech: models.itbMech

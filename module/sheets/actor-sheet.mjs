@@ -133,7 +133,7 @@ export class itbActorSheet extends ActorSheet {
     for (let i of context.items) {
       i.img = i.img || Item.DEFAULT_ICON;
       // Append to appropriate gear container based on location
-      if (i.type === 'item') {
+      if (i.type === 'part') {
         switch(i.system.location) {
           case 'head':
             items_head.push(i);

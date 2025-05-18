@@ -62,6 +62,9 @@
       "item": {
         "htmlFields": ["details.description"]
       },
+      "part": {
+        "htmlFields": ["details.description"]
+      },
       "feature": {
         "htmlFields": ["details.description"]
       },

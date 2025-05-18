@@ -1,0 +1,110 @@
+<form class='{{cssClass}}' autocomplete='off'>
+  <header class='sheet-header'>
+    <img
+      class='profile-img'
+      src='{{item.img}}'
+      data-edit='img'
+      title='{{item.name}}'
+    />
+    <div class='header-fields'>
+      <h1 class='charname'><input
+          name='name'
+          type='text'
+          value='{{item.name}}'
+          placeholder='Name'
+        /></h1>
+      <div class='grid grid-3col'>
+        <div class='resource'>
+          <label class='resource-label'>Quantity</label>
+          <input
+            type='text'
+            name='system.quantity'
+            value='{{system.quantity}}'
+            data-dtype='Number'
+          />
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Weight</label>
+          <input
+            type='text'
+            name='system.weight'
+            value='{{system.weight}}'
+            data-dtype='Number'
+          />
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Location</label>
+          <select name='system.location' data-dtype='String'>
+            <option value='head' {{#if (eq system.location "head")}}selected{{/if}}>Head</option>
+            <option value='torso_c' {{#if (eq system.location "torso_c")}}selected{{/if}}>Torso (Center)</option>
+            <option value='torso_l' {{#if (eq system.location "torso_l")}}selected{{/if}}>Torso (Left)</option>
+            <option value='torso_r' {{#if (eq system.location "torso_r")}}selected{{/if}}>Torso (Right)</option>
+            <option value='arm_r' {{#if (eq system.location "arm_r")}}selected{{/if}}>Right Arm</option>
+            <option value='arm_l' {{#if (eq system.location "arm_l")}}selected{{/if}}>Left Arm</option>
+            <option value='leg_r' {{#if (eq system.location "leg_r")}}selected{{/if}}>Right Leg</option>
+            <option value='leg_l' {{#if (eq system.location "leg_l")}}selected{{/if}}>Left Leg</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{! Sheet Tab Navigation }}
+  <nav class='sheet-tabs tabs' data-group='primary'>
+    <a class='item' data-tab='description'>Description</a>
+    <a class='item' data-tab='attributes'>Attributes</a>
+  </nav>
+
+  {{! Sheet Body }}
+  <section class='sheet-body'>
+
+    {{! Description Tab }}
+    <div class='tab' data-group='primary' data-tab='description'>
+      {{editor
+        enrichedDescription
+        target='system.description'
+        engine='prosemirror'
+        button=true
+        editable=editable
+      }}
+    </div>
+
+    {{! Attributes Tab }}
+    <div class='tab attributes' data-group='primary' data-tab='attributes'>
+      {{! As you add new fields, add them in here! }}
+      <div class='resource'>
+        <label class='resource-label'>Roll Formula:</label>
+        <span>{{system.formula}}</span>
+        <div class='grid grid-4col'>
+          <div class='grid-span-1'>
+            <label class='resource-label'>Number of Dice</label>
+            <input
+              type='text'
+              name='system.roll.diceNum'
+              value='{{system.roll.diceNum}}'
+              data-dtype='Number'
+            />
+          </div>
+          <div class='grid-span-1'>
+            <label class='resource-label'>Die Size</label>
+            <input
+              type='text'
+              name='system.roll.diceSize'
+              value='{{system.roll.diceSize}}'
+              data-dtype='String'
+            />
+          </div>
+          <div class='grid-span-2'>
+            <label class='resource-label'>Roll Modifier</label>
+            <input
+              type='text'
+              name='system.roll.diceBonus'
+              value='{{system.roll.diceBonus}}'
+              data-dtype='String'
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</form>
