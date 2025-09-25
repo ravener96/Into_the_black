@@ -114,6 +114,8 @@ export class itbActorSheet extends ActorSheet {
     const items_arm_l = [];
     const items_leg_r = [];
     const items_leg_l = [];
+    const unassignedItems = [];
+    const mechs = [];
     
     const features = [];
     const spells = {
@@ -128,6 +130,7 @@ export class itbActorSheet extends ActorSheet {
       8: [],
       9: [],
     };
+
 
     // Iterate through items, allocating to containers
     for (let i of context.items) {
@@ -159,10 +162,24 @@ export class itbActorSheet extends ActorSheet {
           case 'leg_l':
             items_leg_l.push(i);
             break;
+          case '':
+          case null:
+          case undefined:
+          case 'unassigned':
+            unassignedItems.push(i);
+            break;
           default:
             // For backward compatibility, assign to head if undefined
-            items_head.push(i);
+            unassignedItems.push(i);
         }
+      }
+      // append to inventory if item
+      else if (i.type === 'item') {
+        unassignedItems.push(i);
+      }
+      // add to mech slot if mech
+      else if (i.type === 'mech') {
+        mechs.push(i);
       }
       // Append to features.
       else if (i.type === 'feature') {
@@ -187,6 +204,10 @@ export class itbActorSheet extends ActorSheet {
     context.items_leg_l = items_leg_l;
     context.features = features;
     context.spells = spells;
+
+    // Add unassigned items to context
+    context.unassignedItems = unassignedItems;
+    context.mechs = mechs;
   }
 
   /* -------------------------------------------- */

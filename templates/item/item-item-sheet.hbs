@@ -1,4 +1,5 @@
 <form class='{{cssClass}}' autocomplete='off'>
+  {{! Sheet Header: Displays item image, name, and basic fields }}
   <header class='sheet-header'>
     <img
       class='profile-img'
@@ -15,6 +16,7 @@
         /></h1>
       <div class='grid grid-3col'>
         <div class='resource'>
+          {{! Quantity field: Editable number input for item quantity }}
           <label class='resource-label'>Quantity</label>
           <input
             type='text'
@@ -24,6 +26,7 @@
           />
         </div>
         <div class='resource'>
+          {{! Weight field: Editable number input for item weight }}
           <label class='resource-label'>Weight</label>
           <input
             type='text'
@@ -33,6 +36,7 @@
           />
         </div>
         <div class='resource'>
+          {{! Location field: Dropdown to select item location on character }}
           <label class='resource-label'>Location</label>
           <select name='system.location' data-dtype='String'>
             <option value='head' {{#if (eq system.location "head")}}selected{{/if}}>Head</option>
