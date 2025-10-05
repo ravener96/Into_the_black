@@ -90,6 +90,11 @@ Handlebars.registerHelper('toLowerCase', function (str) {
   return str.toLowerCase();
 });
 
+// Helper for equality comparison
+Handlebars.registerHelper('eq', function (a, b) {
+  return a === b;
+});
+
 /* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */

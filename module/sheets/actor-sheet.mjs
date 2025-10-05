@@ -131,12 +131,22 @@ export class itbActorSheet extends ActorSheet {
       9: [],
     };
 
+    // Use equippedMechID from character schema
+    const currentMechID = this.actor.system.equippedMechID ?? "0";
 
     // Iterate through items, allocating to containers
     for (let i of context.items) {
       i.img = i.img || Item.DEFAULT_ICON;
       // Append to appropriate gear container based on location
       if (i.type === 'part') {
+        // If mechID is "0", it's unassigned regardless of location
+        if (i.system.mechID === "0") {
+          unassignedItems.push(i);
+          continue;
+        }
+        // Only show parts that belong to the currently equipped mech
+        if (i.system.mechID !== currentMechID) continue;
+        
         switch(i.system.location) {
           case 'head':
             items_head.push(i);
@@ -169,7 +179,6 @@ export class itbActorSheet extends ActorSheet {
             unassignedItems.push(i);
             break;
           default:
-            // For backward compatibility, assign to head if undefined
             unassignedItems.push(i);
         }
       }
@@ -234,12 +243,7 @@ export class itbActorSheet extends ActorSheet {
     html.on('click', '.item-create', this._onItemCreate.bind(this));
 
     // Delete Inventory Item
-    html.on('click', '.item-delete', (ev) => {
-      const li = $(ev.currentTarget).parents('.item');
-      const item = this.actor.items.get(li.data('itemId'));
-      item.delete();
-      li.slideUp(200, () => this.render(false));
-    });
+    html.on('click', '.item-delete', this._onItemDelete.bind(this));
 
     // Active Effect management
     html.on('click', '.effect-control', (ev) => {
@@ -312,6 +316,114 @@ export class itbActorSheet extends ActorSheet {
 
     // Finally, create the item!
     return await Item.create(itemData, { parent: this.actor });
+  }
+
+  /**
+   * Handle deleting an item with special logic for mechs
+   * @param {Event} event - The delete button click event
+   * @private
+   */
+  async _onItemDelete(event) {
+    event.preventDefault();
+    const li = $(event.currentTarget).parents('.item');
+    const item = this.actor.items.get(li.data('itemId'));
+    
+    if (!item) return;
+    
+    // Special handling for mech deletion
+    if (item.type === 'mech') {
+      await this._handleMechDeletion(item, li);
+    } else {
+      // Standard deletion for non-mech items
+      await item.delete();
+      li.slideUp(200, () => this.render(false));
+    }
+  }
+
+  /**
+   * Handle mech deletion with confirmation dialog for parts
+   * @param {Item} mech - The mech item being deleted
+   * @param {jQuery} li - The list item element
+   * @private
+   */
+  async _handleMechDeletion(mech, li) {
+    const mechID = mech.system.mechID;
+    
+    // Find all parts belonging to this mech
+    const attachedParts = this.actor.items.filter(item => 
+      item.type === 'part' && item.system.mechID === mechID
+    );
+    
+    if (attachedParts.length === 0) {
+      // No parts attached, just delete the mech
+      await mech.delete();
+      li.slideUp(200, () => this.render(false));
+      return;
+    }
+    
+    // Show confirmation dialog
+    new Dialog({
+      title: "Delete Mech",
+      content: `
+        <p>This mech has <strong>${attachedParts.length}</strong> part(s) attached to it:</p>
+        <ul>
+          ${attachedParts.map(part => `<li>${part.name} (${part.system.location})</li>`).join('')}
+        </ul>
+        <p>What would you like to do with these parts?</p>
+      `,
+      buttons: {
+        unassign: {
+          icon: '<i class="fas fa-unlink"></i>',
+          label: "Unassign Parts",
+          callback: async () => {
+            // Unassign all parts (set mechID to 0)
+            const updates = attachedParts.map(part => ({
+              _id: part.id,
+              'system.mechID': 0,
+              'system.location': 'unassigned'
+            }));
+            
+            await this.actor.updateEmbeddedDocuments('Item', updates);
+            
+            // If this was the equipped mech, unequip it
+            if (this.actor.system.equippedMechID === mechID) {
+              await this.actor.update({ 'system.equippedMechID': "0" });
+            }
+            
+            // Delete the mech
+            await mech.delete();
+            li.slideUp(200, () => this.render(false));
+            
+            ui.notifications.info(`Mech deleted and ${attachedParts.length} parts unassigned.`);
+          }
+        },
+        delete: {
+          icon: '<i class="fas fa-trash"></i>',
+          label: "Delete All",
+          callback: async () => {
+            // Delete all attached parts
+            const partIds = attachedParts.map(part => part.id);
+            await this.actor.deleteEmbeddedDocuments('Item', partIds);
+            
+            // If this was the equipped mech, unequip it
+            if (this.actor.system.equippedMechID === mechID) {
+              await this.actor.update({ 'system.equippedMechID': "0" });
+            }
+            
+            // Delete the mech
+            await mech.delete();
+            li.slideUp(200, () => this.render(false));
+            
+            ui.notifications.info(`Mech and all ${attachedParts.length} parts deleted.`);
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel"
+        }
+      },
+      default: "cancel"
+    }).render(true);
   }
 
   /**

@@ -465,6 +465,53 @@
   border-bottom: 1px dashed #c9c7b8;
 }
 
+/* Styling for body parts with zero HP */
+.body-part.zero-hp {
+  background-color: rgba(255, 0, 0, 0.3) !important;
+  border-color: #ff0000 !important;
+}
+
+.body-part.zero-hp h3 {
+  background-color: rgba(255, 0, 0, 0.5);
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Body part stats styling */
+.body-part-stats {
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+  gap: 5px;
+}
+
+.stat-row label {
+  font-weight: bold;
+  min-width: 45px;
+  font-size: 12px;
+}
+
+.body-part-hp, .body-part-max-hp, 
+.body-part-armor, .body-part-max-armor {
+  width: 40px;
+  padding: 2px 4px;
+  border: 1px solid #7a7971;
+  border-radius: 3px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.stat-separator {
+  font-weight: bold;
+  color: #7a7971;
+  font-size: 12px;
+}
+
 .layout-config {
   display: flex;
   align-items: center;

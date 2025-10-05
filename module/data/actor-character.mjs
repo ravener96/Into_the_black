@@ -21,6 +21,14 @@ export default class itbCharacter extends itbActorBase {
       return obj;
     }, {}));
 
+    // Add equippedMechID to schema
+    schema.equippedMechID = new fields.StringField({
+      required: true,
+      nullable: false,
+      initial: "0", // "0" means no mech equipped
+      label: "Equipped Mech ID"
+    });
+
     return schema;
   }
 

@@ -49,6 +49,17 @@
             <option value='leg_l' {{#if (eq system.location "leg_l")}}selected{{/if}}>Left Leg</option>
           </select>
         </div>
+        <div class='resource'>
+          {{! Mech ID field: Editable number input for mechID }}
+          <label class='resource-label'>Mech ID</label>
+          <input
+            type='number'
+            name='system.mechID'
+            value='{{system.mechID}}'
+            data-dtype='Number'
+            min='0'
+          />
+        </div>
       </div>
     </div>
   </header>

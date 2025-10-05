@@ -43,7 +43,18 @@
             <option value='arm_l' {{#if (eq system.location "arm_l")}}selected{{/if}}>Left Arm</option>
             <option value='leg_r' {{#if (eq system.location "leg_r")}}selected{{/if}}>Right Leg</option>
             <option value='leg_l' {{#if (eq system.location "leg_l")}}selected{{/if}}>Left Leg</option>
+            <option value='unassigned' {{#if (eq system.location "unassigned")}}selected{{/if}}>Unassigned</option>
           </select>
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Mech ID</label>
+          <input
+            type='number'
+            name='system.mechID'
+            value='{{system.mechID}}'
+            data-dtype='Number'
+            min='0'
+          />
         </div>
       </div>
     </div>

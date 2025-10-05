@@ -23,6 +23,21 @@
             data-dtype='Number'
           />
         </div>
+        <div class='resource'>
+          <label class='resource-label'>Mech ID</label>
+          <input
+            type='text'
+            name='system.mechID'
+            value='{{system.mechID}}'
+            data-dtype='Number'
+          />
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Equip Mech</label>
+          <button type='button' class='equip-mech-button' data-mech-id='{{system.mechID}}'>
+            <i class='fas fa-robot'></i> Equip
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -31,6 +46,7 @@
   <nav class='sheet-tabs tabs' data-group='primary'>
     <a class='item' data-tab='description'>Description</a>
     <a class='item' data-tab='attributes'>Attributes</a>
+    <a class='item' data-tab='bodyparts'>Body Parts</a>
   </nav>
 
   {{! Sheet Body }}
@@ -81,6 +97,136 @@
               data-dtype='String'
             />
           </div>
+        </div>
+      </div>
+    </div>
+
+    {{! Body Parts Tab }}
+    <div class='tab bodyparts' data-group='primary' data-tab='bodyparts'>
+      {{!-- Column-based Body Layout --}}
+      <div class="body-layout">
+        {{!-- Left Column: Left Arm --}}
+        <div class="body-column">
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-arm-l"
+              bodyLabel="Left Arm"
+              bodyKey="arm_l"
+              items=items_arm_l
+              empty-spots=5
+              topPad=100
+              showStats=true
+              bodyPartHP=system.bodyPartHP.arm_l
+              bodyPartMaxHP=system.bodyPartMaxHP.arm_l
+              bodyPartArmour=system.bodyPartArmour.arm_l
+              bodyPartMaxArmour=system.bodyPartMaxArmour.arm_l
+          }}
+        </div>
+
+        {{!-- Left-Center Column: Left Torso, Left Leg --}}
+        <div class="body-column">
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-torso-l"
+              bodyLabel="Torso (Left)"
+              bodyKey="torso_l"
+              items=items_torso_l
+              empty-spots=8
+              topPad=50
+              showStats=true
+              bodyPartHP=system.bodyPartHP.torso_l
+              bodyPartMaxHP=system.bodyPartMaxHP.torso_l
+              bodyPartArmour=system.bodyPartArmour.torso_l
+              bodyPartMaxArmour=system.bodyPartMaxArmour.torso_l
+          }}
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-leg-l"
+              bodyLabel="Left Leg"
+              bodyKey="leg_l"
+              items=items_leg_l
+              empty-spots=5
+              topPad=50
+              showStats=true
+              bodyPartHP=system.bodyPartHP.leg_l
+              bodyPartMaxHP=system.bodyPartMaxHP.leg_l
+              bodyPartArmour=system.bodyPartArmour.leg_l
+              bodyPartMaxArmour=system.bodyPartMaxArmour.leg_l
+          }}
+        </div>
+
+        {{!-- Center Column: Head, Center Torso --}}
+        <div class="body-column-center">
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-head"
+              bodyLabel="Head"
+              bodyKey="head"
+              items=items_head
+              empty-spots=3
+              topPad=0
+              showStats=true
+              bodyPartHP=system.bodyPartHP.head
+              bodyPartMaxHP=system.bodyPartMaxHP.head
+              bodyPartArmour=system.bodyPartArmour.head
+              bodyPartMaxArmour=system.bodyPartMaxArmour.head
+          }}
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-torso-c"
+              bodyLabel="Torso (Center)"
+              bodyKey="torso_c"
+              items=items_torso_c
+              empty-spots=7
+              topPad=0
+              showStats=true
+              bodyPartHP=system.bodyPartHP.torso_c
+              bodyPartMaxHP=system.bodyPartMaxHP.torso_c
+              bodyPartArmour=system.bodyPartArmour.torso_c
+              bodyPartMaxArmour=system.bodyPartMaxArmour.torso_c
+          }}
+        </div>
+
+        {{!-- Right-Center Column: Right Torso, Right Leg --}}
+        <div class="body-column">
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-torso-r"
+              bodyLabel="Torso (Right)"
+              bodyKey="torso_r"
+              items=items_torso_r
+              empty-spots=8
+              topPad=50
+              showStats=true
+              bodyPartHP=system.bodyPartHP.torso_r
+              bodyPartMaxHP=system.bodyPartMaxHP.torso_r
+              bodyPartArmour=system.bodyPartArmour.torso_r
+              bodyPartMaxArmour=system.bodyPartMaxArmour.torso_r
+          }}
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-leg-r"
+              bodyLabel="Right Leg"
+              bodyKey="leg_r"
+              items=items_leg_r
+              empty-spots=5
+              topPad=50
+              showStats=true
+              bodyPartHP=system.bodyPartHP.leg_r
+              bodyPartMaxHP=system.bodyPartMaxHP.leg_r
+              bodyPartArmour=system.bodyPartArmour.leg_r
+              bodyPartMaxArmour=system.bodyPartMaxArmour.leg_r
+          }}
+        </div>
+
+        {{!-- Right Column: Right Arm --}}
+        <div class="body-column">
+          {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
+              bodyClass="body-arm-r"
+              bodyLabel="Right Arm"
+              bodyKey="arm_r"
+              items=items_arm_r
+              empty-spots=5
+              topPad=100
+              showStats=true
+              bodyPartHP=system.bodyPartHP.arm_r
+              bodyPartMaxHP=system.bodyPartMaxHP.arm_r
+              bodyPartArmour=system.bodyPartArmour.arm_r
+              bodyPartMaxArmour=system.bodyPartMaxArmour.arm_r
+          }}
         </div>
       </div>
     </div>

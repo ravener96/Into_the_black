@@ -3,95 +3,60 @@
   {{!-- We can remove the arm position slider since it's not needed with columns --}}
 </div>
 
-{{!-- Column-based Body Layout --}}
-<div class="body-layout">
-  {{!-- Left Column: Left Arm --}}
-  <div class="body-column">
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-arm-l"
-        bodyLabel="Left Arm"
-        bodyKey="arm_l"
-        items=items_arm_l
-        empty-spots=5
-        topPad=100
-    }}
-  </div>
-
-  {{!-- Left-Center Column: Left Torso, Left Leg --}}
-  <div class="body-column">
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-torso-l"
-        bodyLabel="Torso (Left)"
-        bodyKey="torso_l"
-        items=items_torso_l
-        empty-spots=8
-        topPad=50
-    }}
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-leg-l"
-        bodyLabel="Left Leg"
-        bodyKey="leg_l"
-        items=items_leg_l
-        empty-spots=5
-        topPad=50
-    }}
-  </div>
-
-  {{!-- Center Column: Head, Center Torso --}}
-  <div class="body-column-center">
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-head"
-        bodyLabel="Head"
-        bodyKey="head"
-        items=items_head
-        empty-spots=3
-        topPad=0
-    }}
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-torso-c"
-        bodyLabel="Torso (Center)"
-        bodyKey="torso_c"
-        items=items_torso_c
-        empty-spots=7
-        topPad=0
-    }}
-  </div>
-
-  {{!-- Right-Center Column: Right Torso, Right Leg --}}
-  <div class="body-column">
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-torso-r"
-        bodyLabel="Torso (Right)"
-        bodyKey="torso_r"
-        items=items_torso_r
-        empty-spots=8
-        topPad=50
-    }}
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-leg-r"
-        bodyLabel="Right Leg"
-        bodyKey="leg_r"
-        items=items_leg_r
-        empty-spots=5
-        topPad=50
-    }}
-  </div>
-
-  {{!-- Right Column: Right Arm --}}
-  <div class="body-column">
-    {{> "systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs"
-        bodyClass="body-arm-r"
-        bodyLabel="Right Arm"
-        bodyKey="arm_r"
-        items=items_arm_r
-        empty-spots=5
-        topPad=100
-    }}
-  </div>
+{{!-- Unassigned Items List --}}
+<div class="body-part body-unequipped">
+  <h3>Unequipped Items
+    <div class="item-controls">
+      <a
+        class="item-control item-create"
+        title="{{localize 'DOCUMENT.Create' type='Item'}}"
+        data-type="item"
+        data-location="unassigned"
+      >
+        <i class="fas fa-plus"></i>
+      </a>
+    </div>
+  </h3>
+  <ol class="items-list"
+      id="items-unequipped"
+      data-location="unassigned"
+      style="min-height: {{listHeight 8}}px; max-height: {{listHeight 8}}px;">
+    {{#each unassignedItems as |item id|}}
+      <li class="item flexrow" data-item-id="{{item._id}}">
+        <div class="item-name">
+          <div class="item-image">
+            <a
+              class="item-control item-edit"
+              title="{{localize 'DOCUMENT.Update' type=item.type}}"
+            >
+              <img
+                src="{{item.img}}"
+                title="{{item.name}}"
+                width="24"
+                height="24"
+              />
+            </a>
+          </div>
+          <h4>{{item.name}}</h4>
+        </div>
+        <div class="item-controls">
+          <a
+            class="item-control item-delete"
+            title="{{localize 'DOCUMENT.Delete' type=item.type}}"
+          >
+            <i class="fas fa-trash"></i>
+          </a>
+        </div>
+      </li>
+    {{else}}
+      {{#times 8}}
+        <li class="item flexrow empty-item"><div class="item-name"></div></li>
+      {{/times}}
+    {{/each}}
+  </ol>
 </div>
 
-{{!-- Unassigned Items List --}}
-
+{{!-- Mechs List --}}
 <div class="body-part body-mechs">
   <h3>Mechs
     <div class="item-controls">
