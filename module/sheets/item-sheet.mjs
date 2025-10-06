@@ -3,6 +3,9 @@ import {
   prepareActiveEffectCategories,
 } from '../helpers/effects.mjs';
 
+// Configuration constants
+const ENABLE_DELETE_WARNING = true; // Set to false to disable deletion confirmation dialogs
+
 /**
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
@@ -437,25 +440,55 @@ export class itbItemSheet extends ItemSheet {
    */
   async _onItemDelete(event) {
     event.preventDefault();
+    event.stopPropagation(); // Prevent event bubbling
     
     const li = $(event.currentTarget).parents('.item');
     const itemId = li.data('itemId');
-    console.log("li");
-    console.log(li);
+    
+    if (!itemId) {
+      console.warn('No item ID found for deletion');
+      return;
+    }
+    
     // Get the character that owns this mech
-    const parent = this.item.parent;
-    //if (!parent) return;
-    console.log(parent);
-    let character = parent;
-    if (parent.type == 'mech') {
-      console.log("Mech parent found");
-      character = parent.parent;
+    const character = this.item.parent;
+    if (!character) {
+      console.warn('No character parent found for mech item');
+      return;
     }
 
-    const item = parent.items.get(itemId);
+    const item = character.items.get(itemId);
     if (item) {
-      await item.delete();
-      li.slideUp(200, () => this.render(false));
+      if (ENABLE_DELETE_WARNING) {
+        // Show confirmation dialog
+        new Dialog({
+          title: "Delete Item",
+          content: `<p>Are you sure you want to delete "<strong>${item.name}</strong>"?</p>`,
+          buttons: {
+            yes: {
+              icon: '<i class="fas fa-check"></i>',
+              label: "Delete",
+              callback: async () => {
+                await item.delete();
+                // Re-render the sheet to reflect the deletion
+                this.render(false);
+              }
+            },
+            no: {
+              icon: '<i class="fas fa-times"></i>',
+              label: "Cancel"
+            }
+          },
+          default: "no"
+        }).render(true);
+      } else {
+        // Delete immediately without confirmation
+        await item.delete();
+        // Re-render the sheet to reflect the deletion
+        this.render(false);
+      }
+    } else {
+      console.warn(`Item with ID ${itemId} not found on character ${character.name}`);
     }
   }
 
