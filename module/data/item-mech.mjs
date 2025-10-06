@@ -6,7 +6,11 @@ export default class itbMech extends itbItemBase {
     const schema = super.defineSchema();
     schema.weight = new fields.NumberField({ required: true, nullable: false, initial: 0, min: 0 });
     schema.location = new fields.StringField({ required: false, nullable: true, initial: "unassigned" });
-    schema.mechID = new fields.StringField({ required: true, nullable: false, initial: "" });
+    schema.mechID = new fields.StringField({ 
+      required: true, 
+      nullable: false, 
+      initial: ""
+    });
 
     // Add mech-specific fields
     schema.weight = new fields.NumberField({
@@ -91,10 +95,16 @@ export default class itbMech extends itbItemBase {
   prepareDerivedData() {
     super.prepareDerivedData();
     
-    // Generate a unique mechID if one doesn't exist or is empty
+    // No longer need to generate mechID here - handled in _onCreate
+  }
+
+  _onCreate(data, options, userId) {
+    super._onCreate?.(data, options, userId);
+    
+    // Generate a unique mechID when the item is created
     // Also handle legacy numeric values (0) for backward compatibility
-    if (!this.mechID || this.mechID === "" || this.mechID === 0 || this.mechID === "0") {
-      this.mechID = this.parent?.uuid || foundry.utils.randomID();
+    if (!this.mechID || this.mechID === "" || this.mechID === 0 || this.mechID === "0" ||  this.mechID === 'NaN' || Number.isNaN(this.mechID)) {
+      this.parent?.update({'system.mechID': foundry.utils.randomID()});
     }
   }
 }

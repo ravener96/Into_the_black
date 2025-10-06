@@ -530,6 +530,28 @@ export class itbActorSheet extends ActorSheet {
           }
           const originalItem = sourceActor.items.get(itemId);
           if (originalItem) {
+            // Special handling for mech transfers - move all associated parts
+            if (originalItem.type === 'mech') {
+              const mechID = originalItem.system.mechID;
+              
+              // Find all parts that belong to this mech
+              const associatedParts = sourceActor.items.filter(item => 
+                item.type === 'part' && item.system.mechID === mechID
+              );
+              
+              if (associatedParts.length > 0) {
+                // Create copies of all associated parts on the destination actor
+                const partData = associatedParts.map(part => part.toObject());
+                await this.actor.createEmbeddedDocuments('Item', partData);
+                
+                // Delete all associated parts from the source actor
+                const partIds = associatedParts.map(part => part.id);
+                await sourceActor.deleteEmbeddedDocuments('Item', partIds);
+                
+                ui.notifications.info(`Moved mech "${originalItem.name}" and ${associatedParts.length} associated parts to ${this.actor.name}.`);
+              }
+            }
+            
             await originalItem.delete();
           }
         }
