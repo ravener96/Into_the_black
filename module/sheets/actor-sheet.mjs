@@ -134,12 +134,6 @@ export class itbActorSheet extends ActorSheet {
     // Use equippedMechID from character schema
     const currentMechID = this.actor.system.equippedMechID ?? "0";
 
-    // Get the currently equipped mech data
-    let currentMech = null;
-    if (currentMechID !== "0") {
-      currentMech = context.items.find(item => item.type === 'mech' && item.system.mechID === currentMechID);
-    }
-
     // Iterate through items, allocating to containers
     for (let i of context.items) {
       i.img = i.img || Item.DEFAULT_ICON;
@@ -223,26 +217,6 @@ export class itbActorSheet extends ActorSheet {
     // Add unassigned items to context
     context.unassignedItems = unassignedItems;
     context.mechs = mechs;
-
-    // Add current mech data for body part stats
-    if (currentMech) {
-      context.currentMech = {
-        id: currentMech._id,
-        mechID: currentMech.system.mechID,
-        ...currentMech.system
-      };
-      context.bodyPartHP = currentMech.system.bodyPartHP;
-      context.bodyPartMaxHP = currentMech.system.bodyPartMaxHP;
-      context.bodyPartArmour = currentMech.system.bodyPartArmour;
-      context.bodyPartMaxArmour = currentMech.system.bodyPartMaxArmour;
-    } else {
-      // No mech equipped, provide empty data
-      context.currentMech = null;
-      context.bodyPartHP = {};
-      context.bodyPartMaxHP = {};
-      context.bodyPartArmour = {};
-      context.bodyPartMaxArmour = {};
-    }
   }
 
   /* -------------------------------------------- */
@@ -297,27 +271,6 @@ export class itbActorSheet extends ActorSheet {
         // if (item.system.weight != null && item.system.quantity != null) {
         //   item.update({ 'system.totalWeight': (item.system.weight * newValue) });
         // }
-      }
-    });
-
-    // Handle mech body part stat changes
-    html.on('change', '.body-part-hp, .body-part-max-hp, .body-part-armor, .body-part-max-armor', (ev) => {
-      const input = ev.currentTarget;
-      const mechId = input.dataset.mechId;
-      const field = input.dataset.field;
-      const bodyKey = input.dataset.bodyKey;
-      const newValue = parseInt(input.value, 10) || 0;
-
-      // Find the mech item and update the specific body part stat
-      const mech = this.actor.items.get(mechId);
-      if (mech && mech.type === 'mech') {
-        const updatePath = `system.${field}.${bodyKey}`;
-        mech.update({ [updatePath]: newValue }).catch(err => {
-          console.error('Failed to update mech body part stats:', err);
-          ui.notifications.error('Failed to update mech stats.');
-        });
-      } else {
-        console.warn('Mech not found or invalid type:', mechId);
       }
     });
 
@@ -667,12 +620,6 @@ export const registerHandlebarsHelpers = () => {
   Handlebars.registerHelper('listHeight', function(emptySpots) {
     // +1 for the header row, 28px per row (adjust if your row height is different)
     return ((parseInt(emptySpots, 10) + 1) * 28);
-  });
-
-  // Add logical AND helper
-  Handlebars.registerHelper('and', function() {
-    const args = Array.prototype.slice.call(arguments, 0, -1);
-    return args.every(Boolean);
   });
 }
 
