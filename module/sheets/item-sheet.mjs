@@ -283,11 +283,25 @@ export class itbItemSheet extends ItemSheet {
     const li = event.currentTarget;
     const itemId = li.dataset.itemId;
     
-    event.dataTransfer.setData('text/plain', JSON.stringify({
+    // Get the character that owns this mech
+    const character = this.item.parent;
+    if (!character) return;
+    
+    const item = character.items.get(itemId);
+    if (!item) return;
+    
+    // Set up both custom data for mech sheet operations and standard Foundry data
+    const dragData = {
       type: 'Item',
       itemId: itemId,
-      source: 'mech-sheet'
-    }));
+      source: 'mech-sheet',
+      // Standard Foundry drag data
+      uuid: item.uuid,
+      data: item.toObject(),
+      actorId: character.id  // Add actor ID so character sheet knows it's same-actor movement
+    };
+    
+    event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
   }
 
   /**
@@ -320,6 +334,13 @@ export class itbItemSheet extends ItemSheet {
     const newLocation = targetList.dataset.location;
     const mechID = this.item.system.mechID;
     
+    // Debug: Check if we have a valid mechID from the mech
+    console.log(`Mech ${this.item.name} has mechID: ${mechID}`);
+    if (!mechID || mechID === "" || mechID === "0") {
+      ui.notifications.warn(`This mech doesn't have a valid ID. Please edit the mech and set a proper Mech ID.`);
+      return;
+    }
+    
     // Get the character that owns this mech
     const character = this.item.parent;
     if (!character) return;
@@ -330,6 +351,8 @@ export class itbItemSheet extends ItemSheet {
     if (data.source === 'mech-sheet' && data.itemId) {
       item = character.items.get(data.itemId);
       if (!item) return;
+      
+      console.log(`Moving item ${item.name} from mechID ${item.system.mechID} to mechID ${mechID}`);
       
       // Update both the item's location AND mechID (in case it's from a different mech)
       await item.update({
@@ -353,6 +376,8 @@ export class itbItemSheet extends ItemSheet {
         ui.notifications.warn('Items can only be moved within the same character.');
         return;
       }
+      
+      console.log(`Assigning part ${item.name} from mechID ${item.system.mechID} to mechID ${mechID} at location ${newLocation}`);
       
       // Update both the location and mechID
       await item.update({
@@ -415,12 +440,19 @@ export class itbItemSheet extends ItemSheet {
     
     const li = $(event.currentTarget).parents('.item');
     const itemId = li.data('itemId');
-    
+    console.log("li");
+    console.log(li);
     // Get the character that owns this mech
-    const character = this.item.parent;
-    if (!character) return;
-    
-    const item = character.items.get(itemId);
+    const parent = this.item.parent;
+    //if (!parent) return;
+    console.log(parent);
+    let character = parent;
+    if (parent.type == 'mech') {
+      console.log("Mech parent found");
+      character = parent.parent;
+    }
+
+    const item = parent.items.get(itemId);
     if (item) {
       await item.delete();
       li.slideUp(200, () => this.render(false));

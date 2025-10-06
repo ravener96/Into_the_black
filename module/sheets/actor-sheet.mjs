@@ -526,7 +526,14 @@ export class itbActorSheet extends ActorSheet {
       if (item) {
         // Always update the location if we have a targetLocation
         if (targetLocation && item.system.location !== targetLocation) {
-          return await item.update({'system.location': targetLocation});
+          const updateData = {'system.location': targetLocation};
+          
+          // If moving from mech to inventory, reset mechID to "0" 
+          if (data.source === 'mech-sheet' && item.type === 'part') {
+            updateData['system.mechID'] = "0";
+          }
+          
+          return await item.update(updateData);
         } else {
           return null;
         }
