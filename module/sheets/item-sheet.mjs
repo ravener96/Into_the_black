@@ -100,6 +100,13 @@ export class itbItemSheet extends ItemSheet {
     // Get the mech's ID
     const currentMechID = this.item.system.mechID;
 
+    // Set up currentMech data for the template (needed for body part stats)
+    context.currentMech = {
+      id: this.item._id,
+      mechID: currentMechID,
+      ...this.item.system
+    };
+
     // Get the character that owns this mech
     const character = this.item.parent;
     if (!character) {
@@ -248,6 +255,23 @@ export class itbItemSheet extends ItemSheet {
 
     // Handle item editing
     html.on('click', '.item-edit', this._onItemEdit.bind(this));
+
+    // Handle mech body part stat changes (for mech item sheets)
+    html.on('change', '.body-part-hp, .body-part-max-hp, .body-part-armor, .body-part-max-armor', (ev) => {
+      const input = ev.currentTarget;
+      const field = input.dataset.field;
+      const bodyKey = input.dataset.bodyKey;
+      const newValue = parseInt(input.value, 10) || 0;
+
+      // Update this mech item's body part stats directly
+      if (this.item.type === 'mech') {
+        const updatePath = `system.${field}.${bodyKey}`;
+        this.item.update({ [updatePath]: newValue }).catch(err => {
+          console.error('Failed to update mech body part stats:', err);
+          ui.notifications.error('Failed to update mech stats.');
+        });
+      }
+    });
 
     // Handle drag and drop for reordering items
     if (this.item.type === 'mech') {

@@ -12,39 +12,51 @@
         </a>
       </div>
   </h3>
-  {{#if showStats}}
+  {{#if (and showStats currentMech)}}
   <div class="body-part-stats">
     <div class="stat-row">
       <label>HP:</label>
       <input type="number" 
-             name="system.bodyPartHP.{{bodyKey}}" 
+             name="items.{{currentMech.id}}.system.bodyPartHP.{{bodyKey}}" 
              value="{{bodyPartHP}}" 
              min="0" 
              max="{{bodyPartMaxHP}}"
-             class="body-part-hp" />
+             class="body-part-hp" 
+             data-mech-id="{{currentMech.id}}"
+             data-field="bodyPartHP"
+             data-body-key="{{bodyKey}}" />
       <span class="stat-separator">/</span>
       <input type="number" 
-             name="system.bodyPartMaxHP.{{bodyKey}}" 
+             name="items.{{currentMech.id}}.system.bodyPartMaxHP.{{bodyKey}}" 
              value="{{bodyPartMaxHP}}" 
              min="0" 
              class="body-part-max-hp" 
-             placeholder="Max" />
+             placeholder="Max" 
+             data-mech-id="{{currentMech.id}}"
+             data-field="bodyPartMaxHP"
+             data-body-key="{{bodyKey}}" />
     </div>
     <div class="stat-row">
       <label>Armor:</label>
       <input type="number" 
-             name="system.bodyPartArmour.{{bodyKey}}" 
+             name="items.{{currentMech.id}}.system.bodyPartArmour.{{bodyKey}}" 
              value="{{bodyPartArmour}}" 
              min="0" 
              max="{{bodyPartMaxArmour}}"
-             class="body-part-armor" />
+             class="body-part-armor" 
+             data-mech-id="{{currentMech.id}}"
+             data-field="bodyPartArmour"
+             data-body-key="{{bodyKey}}" />
       <span class="stat-separator">/</span>
       <input type="number" 
-             name="system.bodyPartMaxArmour.{{bodyKey}}" 
+             name="items.{{currentMech.id}}.system.bodyPartMaxArmour.{{bodyKey}}" 
              value="{{bodyPartMaxArmour}}" 
              min="0" 
              class="body-part-max-armor" 
-             placeholder="Max" />
+             placeholder="Max" 
+             data-mech-id="{{currentMech.id}}"
+             data-field="bodyPartMaxArmour"
+             data-body-key="{{bodyKey}}" />
     </div>
   </div>
   {{/if}}
