@@ -134,6 +134,32 @@ export class itbActorSheet extends ActorSheet {
     // Use equippedMechID from character schema
     const currentMechID = this.actor.system.equippedMechID ?? "0";
 
+    // Find the equipped mech item to get body part stats
+    let equippedMech = null;
+    if (currentMechID !== "0") {
+      equippedMech = this.actor.items.find(item => 
+        item.type === 'mech' && item.system.mechID === currentMechID
+      );
+    }
+
+    // Add equipped mech data to context for body part stats
+    if (equippedMech) {
+      context.equippedMechStats = {
+        bodyPartHP: equippedMech.system.bodyPartHP,
+        bodyPartMaxHP: equippedMech.system.bodyPartMaxHP,
+        bodyPartArmour: equippedMech.system.bodyPartArmour,
+        bodyPartMaxArmour: equippedMech.system.bodyPartMaxArmour
+      };
+    } else {
+      // Provide default empty stats if no mech is equipped
+      context.equippedMechStats = {
+        bodyPartHP: {},
+        bodyPartMaxHP: {},
+        bodyPartArmour: {},
+        bodyPartMaxArmour: {}
+      };
+    }
+
     // Iterate through items, allocating to containers
     for (let i of context.items) {
       i.img = i.img || Item.DEFAULT_ICON;
