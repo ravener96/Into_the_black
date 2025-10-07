@@ -243,9 +243,6 @@ export class itbItemSheet extends ItemSheet {
     // Handle equip mech button for mech items
     html.on('click', '.equip-mech-button', this._onEquipMech.bind(this));
 
-    // Handle item creation for mech body parts
-    html.on('click', '.item-create', this._onItemCreate.bind(this));
-
     // Handle item deletion
     html.on('click', '.item-delete', this._onItemDelete.bind(this));
 
@@ -392,44 +389,6 @@ export class itbItemSheet extends ItemSheet {
     }
     
     // Re-render the sheet to show the changes
-    this.render(false);
-  }
-
-  /**
-   * Handle creating a new part for this mech
-   * @param {Event} event - The button click event
-   * @private
-   */
-  async _onItemCreate(event) {
-    event.preventDefault();
-    
-    if (this.item.type !== 'mech') return;
-    
-    const header = event.currentTarget;
-    const type = header.dataset.type || 'part';
-    const location = header.dataset.location;
-    const mechID = this.item.system.mechID;
-    
-    // Get the character that owns this mech
-    const character = this.item.parent;
-    if (!character) {
-      ui.notifications.warn('This mech must be owned by a character to add parts.');
-      return;
-    }
-    
-    // Create the new part
-    const itemData = {
-      name: `New ${type.capitalize()}`,
-      type: type,
-      system: {
-        location: location,
-        mechID: mechID
-      }
-    };
-    
-    await Item.create(itemData, { parent: character });
-    
-    // Re-render the sheet to show the new item
     this.render(false);
   }
 

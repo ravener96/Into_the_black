@@ -11,6 +11,8 @@ export const preloadHandlebarsTemplates = async function () {
     'systems/into-the-black/templates/actor/parts/actor-mech.hbs',
     'systems/into-the-black/templates/actor/parts/actor-spells.hbs',
     'systems/into-the-black/templates/actor/parts/actor-effects.hbs',
+    'systems/into-the-black/templates/actor/parts/mech-body-part-list.hbs',
+    'systems/into-the-black/templates/actor/parts/mech-body-part-list-mech.hbs',
     // Item partials
     'systems/into-the-black/templates/item/parts/item-effects.hbs',
   ]);

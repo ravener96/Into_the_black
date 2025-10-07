@@ -1,4 +1,4 @@
-{{!-- filepath: templates/actor/parts/mech-body-part-list.hbs --}}
+{{!-- filepath: templates/actor/parts/mech-body-part-list-mech.hbs --}}
 <div class="body-part {{bodyClass}}{{#if showStats}}{{#if (eq bodyPartHP 0)}} zero-hp{{/if}}{{/if}}" style="margin-top: {{topPad}}px;">
   <h3>{{bodyLabel}}</h3>
   {{#if showStats}}
@@ -17,8 +17,7 @@
              value="{{bodyPartMaxHP}}" 
              min="0" 
              class="body-part-max-hp" 
-             placeholder="Max" 
-             disabled />
+             placeholder="Max" />
     </div>
     <div class="stat-row">
       <label>Armor:</label>
@@ -34,8 +33,7 @@
              value="{{bodyPartMaxArmour}}" 
              min="0" 
              class="body-part-max-armor" 
-             placeholder="Max"
-             disabled />
+             placeholder="Max" />
     </div>
   </div>
   {{/if}}
@@ -80,6 +78,15 @@
           </a>
           </div>
           <h4>{{item.name}}</h4>
+        </div>
+        <div class='item-controls'>
+
+          <a
+            class='item-control item-delete'
+            title='{{localize "DOCUMENT.Delete" type="Item"}}'
+          >
+            <i class='fas fa-trash'></i>
+          </a>
         </div>
       </li>
     

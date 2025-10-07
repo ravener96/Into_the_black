@@ -248,6 +248,97 @@ export class itbActorSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /** @override */
+  async _updateObject(event, formData) {
+    // Separate mech-related updates from actor updates
+    const mechUpdates = {};
+    const actorUpdates = {};
+    
+    // Find the currently equipped mech
+    const currentMechID = this.actor.system.equippedMechID ?? "0";
+    let equippedMech = null;
+    
+    if (currentMechID !== "0") {
+      equippedMech = this.actor.items.find(item => 
+        item.type === 'mech' && item.system.mechID === currentMechID
+      );
+    }
+    
+    // Process each form field
+    for (const [key, value] of Object.entries(formData)) {
+      // Check if this is a mech body part update
+      if (key.startsWith('system.bodyPartHP.') || 
+          key.startsWith('system.bodyPartMaxHP.') || 
+          key.startsWith('system.bodyPartArmour.') || 
+          key.startsWith('system.bodyPartMaxArmour.')) {
+        
+        if (equippedMech) {
+          mechUpdates[key] = value;
+        }
+        // Don't add to actorUpdates as actors don't have these fields
+      } else {
+        // This is a regular actor update
+        actorUpdates[key] = value;
+      }
+    }
+    
+    // Update the equipped mech if there are mech-related changes
+    if (equippedMech && Object.keys(mechUpdates).length > 0) {
+      await equippedMech.update(mechUpdates);
+    }
+    
+    // Update the actor with remaining changes
+    if (Object.keys(actorUpdates).length > 0) {
+      await super._updateObject(event, actorUpdates);
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  async _render(force, options) {
+    await super._render(force, options);
+    
+    // Set up listeners for mech item updates to refresh the actor sheet
+    this._setupMechUpdateListeners();
+  }
+
+  /**
+   * Set up listeners for mech item updates to refresh the mech tab display
+   * @private
+   */
+  _setupMechUpdateListeners() {
+    // Remove existing listeners to avoid duplicates
+    if (this._mechUpdateHook) {
+      Hooks.off('updateItem', this._mechUpdateHook);
+    }
+    
+    // Add listener for mech item updates
+    this._mechUpdateHook = Hooks.on('updateItem', (item, data, options, userId) => {
+      // Only re-render if the updated item is a mech belonging to this actor
+      if (item.parent?.id === this.actor.id && item.type === 'mech') {
+        // Check if this is the currently equipped mech
+        const currentMechID = this.actor.system.equippedMechID ?? "0";
+        if (item.system.mechID === currentMechID) {
+          this.render(false);
+        }
+      }
+    });
+  }
+
+  /** @override */
+  async close(options) {
+    // Clean up listeners when closing the sheet
+    if (this._mechUpdateHook) {
+      Hooks.off('updateItem', this._mechUpdateHook);
+      this._mechUpdateHook = null;
+    }
+    
+    return super.close(options);
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
   activateListeners(html) {
     super.activateListeners(html);
 
@@ -305,6 +396,11 @@ export class itbActorSheet extends ActorSheet {
       let handler = (ev) => this._onDragStart(ev);
       html.find('li.item').each((i, li) => {
         if (li.classList.contains('inventory-header')) return;
+        
+        // Check if this item is in the mech tab - if so, don't make it draggable
+        const isInMechTab = li.closest('.tab.mech') !== null;
+        if (isInMechTab) return;
+        
         li.setAttribute('draggable', true);
         li.addEventListener('dragstart', handler, false);
       });

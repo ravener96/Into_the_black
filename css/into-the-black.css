@@ -506,6 +506,13 @@
   text-align: center;
 }
 
+.body-part-max-armor:disabled, .body-part-max-hp:disabled {
+  background-color: transparent;
+  color: #000000;
+  border: none;
+  padding: 2px 4px;
+}
+
 .stat-separator {
   font-weight: bold;
   color: #7a7971;
