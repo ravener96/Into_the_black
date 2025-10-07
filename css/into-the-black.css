@@ -54,13 +54,13 @@
 /* Part Toggle Styles */
 .item-toggle {
   display: flex;
-  align-items: center;
-  margin-right: 8px;
+  align-items: left;
+  margin-right: 4px;
 }
 
 .part-enabled-toggle {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   cursor: pointer;
 }
 
@@ -70,10 +70,12 @@
 
 .item-name.disabled h4 {
   text-decoration: line-through;
-  color: #999;
+  color: #434343;
 }
 
 /* Resource Tag Styles */
+/*
+*/
 .item-resources {
   display: flex;
   flex-wrap: wrap;
@@ -97,8 +99,38 @@
 
 .resource-tag.inactive {
   background-color: #f5f5f5;
-  color: #999;
+  color: #454545;
   border-color: #ccc;
+}
+
+/* Consumable Resource Styles */
+.resource-input {
+  width: 40px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 11px;
+  text-align: center;
+  margin-left: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.resource-input.active {
+  border-color: #0066cc;
+  background-color: #fff;
+}
+
+.resource-input.inactive {
+  border-color: #ccc;
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.resource-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 3px rgba(0, 102, 204, 0.3);
 }
 
 /* Part Sheet Resource Management */
@@ -163,7 +195,7 @@
 .items-list .item.flexrow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   padding: 4px 8px;
   border-bottom: 1px solid #eee;
 }
@@ -176,7 +208,7 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 .items-list .item .item-image {
@@ -446,7 +478,7 @@
 }
 .into-the-black .items-header > * {
   font-size: 14px;
-  text-align: center;
+  text-align: left;
 }
 .into-the-black .items-header .item-name {
   font-weight: bold;
@@ -488,13 +520,13 @@
 }
 .into-the-black .items-list .item-controls {
   display: flex;
-  flex: 0 0 30px;
+  flex: 0 0 10px;
   justify-content: flex-end;
 }
 .into-the-black .items-list .item-controls a {
   font-size: 12px;
-  text-align: center;
-  margin: 0 6px;
+  text-align: left;
+  margin: 0 2px;
 }
 .into-the-black .items-list .item {
   align-items: center;
@@ -516,7 +548,7 @@
   margin-right: 5px;
 }
 .into-the-black .items-list .item-prop {
-  text-align: center;
+  text-align: left;
   border-left: 1px solid #c9c7b8;
   border-right: 1px solid #c9c7b8;
   font-size: 12px;
@@ -532,7 +564,7 @@
 }
 .into-the-black .items-list .items-header > * {
   font-size: 12px;
-  text-align: center;
+  text-align: left;
 }
 .into-the-black .items-list .items-header .item-name {
   padding-left: 5px;
@@ -545,7 +577,7 @@
 .into-the-black .effects .item .effect-source,
 .into-the-black .effects .item .effect-duration,
 .into-the-black .effects .item .effect-controls {
-  text-align: center;
+  text-align: left;
   border-left: 1px solid #c9c7b8;
   border-right: 1px solid #c9c7b8;
   font-size: 12px;

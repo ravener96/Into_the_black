@@ -6,7 +6,7 @@
 {{!-- Resource Totals Display --}}
 {{#if mechResourceTotals}}
   <div class="mech-resource-totals">
-    <h3>Mech Resources</h3>
+    <h3>Total Mech Resources</h3>
     <div class="resource-totals-grid">
       {{#each mechResourceTotals as |value key|}}
         <div class="resource-total">
@@ -20,6 +20,7 @@
       {{/each}}
     </div>
   </div>
+  <hr style="margin: 15px 0; border: 1px solid #ddd;">
 {{/if}}
 
 {{!-- Column-based Body Layout --}}

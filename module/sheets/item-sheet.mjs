@@ -187,12 +187,15 @@ export class itbItemSheet extends ItemSheet {
     
     // Sum up all resources from enabled parts
     for (const part of mechParts) {
-      if (part.system.resources) {
+      if (part.system.resources && typeof part.system.resources === 'object') {
         for (const [resourceName, value] of Object.entries(part.system.resources)) {
-          if (resourceTotals[resourceName]) {
-            resourceTotals[resourceName] += value;
-          } else {
-            resourceTotals[resourceName] = value;
+          // Only include resources with valid names and positive values
+          if (resourceName && resourceName.trim() !== '' && typeof value === 'number' && value > 0) {
+            if (resourceTotals[resourceName]) {
+              resourceTotals[resourceName] += value;
+            } else {
+              resourceTotals[resourceName] = value;
+            }
           }
         }
       }
