@@ -4,6 +4,189 @@
   font-family: "Roboto", sans-serif;
 }
 
+/* Resource Management Styles */
+.mech-resource-totals {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.mech-resource-totals h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.resource-totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.resource-total {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+}
+
+.resource-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.resource-value {
+  font-weight: bold;
+  color: #0066cc;
+}
+
+.no-resources {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 10px;
+  color: #666;
+}
+
+/* Part Toggle Styles */
+.item-toggle {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.part-enabled-toggle {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.item-name.disabled {
+  opacity: 0.6;
+}
+
+.item-name.disabled h4 {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Resource Tag Styles */
+.item-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.resource-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.resource-tag.active {
+  background-color: #e7f3ff;
+  color: #0066cc;
+  border-color: #0066cc;
+}
+
+.resource-tag.inactive {
+  background-color: #f5f5f5;
+  color: #999;
+  border-color: #ccc;
+}
+
+/* Part Sheet Resource Management */
+.resources-management {
+  padding: 10px;
+}
+
+.resources-list {
+  margin: 15px 0;
+}
+
+.resource-entry {
+  margin-bottom: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.resource-entry input[type="text"],
+.resource-entry input[type="number"] {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.resource-controls {
+  display: flex;
+  align-items: flex-end;
+}
+
+.remove-resource {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.remove-resource:hover {
+  background: #c82333;
+}
+
+.add-resource-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-resource-button:hover {
+  background: #218838;
+}
+
+/* Item layout adjustments for toggles */
+.items-list .item.flexrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.items-list .item.flexrow:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.items-list .item .item-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.items-list .item .item-image {
+  flex-shrink: 0;
+}
+
+.items-list .item .item-controls {
+  flex-shrink: 0;
+}
+
 .rollable:hover, .rollable:focus {
   color: #000;
   text-shadow: 0 0 10px red;

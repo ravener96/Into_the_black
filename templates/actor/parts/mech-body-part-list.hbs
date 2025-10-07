@@ -53,20 +53,15 @@
     -->
     {{#each items as |item id|}}
       <li class='item flexrow' data-item-id='{{item._id}}'>
-        <div class='item-name'>
+        <div class='item-toggle'>
+          <input type='checkbox' 
+                 class='part-enabled-toggle' 
+                 data-item-id='{{item._id}}'
+                 {{#if item.system.enabled}}checked{{/if}}
+                 title='Enable/Disable this part' />
+        </div>
+        <div class='item-name {{#unless item.system.enabled}}disabled{{/unless}}'>
           <div class='item-image'>
-
-            <!--
-
-            <a class='rollable' data-roll-type='item'>
-              <img
-                src='{{item.img}}'
-                title='{{item.name}}'
-                width='24'
-                height='24'
-              />
-            </a>
-            -->
           <a
             class='item-control item-edit'
             title='{{localize "DOCUMENT.Update" type="Item"}}'
@@ -80,6 +75,17 @@
           </a>
           </div>
           <h4>{{item.name}}</h4>
+          {{#if item.system.resources}}
+            <div class='item-resources'>
+              {{#each item.system.resources as |value key|}}
+                {{#if ../item.system.enabled}}
+                  <span class='resource-tag active'>{{key}}: {{value}}</span>
+                {{else}}
+                  <span class='resource-tag inactive'>{{key}}: {{value}}</span>
+                {{/if}}
+              {{/each}}
+            </div>
+          {{/if}}
         </div>
       </li>
     

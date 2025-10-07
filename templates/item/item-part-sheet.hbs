@@ -33,6 +33,17 @@
           />
         </div>
         <div class='resource'>
+          <label class='resource-label'>Enabled</label>
+          <input
+            type='checkbox'
+            name='system.enabled'
+            {{#if system.enabled}}checked{{/if}}
+            data-dtype='Boolean'
+          />
+        </div>
+      </div>
+      <div class='grid grid-3col'>
+        <div class='resource'>
           <label class='resource-label'>Location</label>
           <select name='system.location' data-dtype='String'>
             <option value='head' {{#if (eq system.location "head")}}selected{{/if}}>Head</option>
@@ -63,6 +74,7 @@
   <nav class='sheet-tabs tabs' data-group='primary'>
     <a class='item' data-tab='description'>Description</a>
     <a class='item' data-tab='attributes'>Attributes</a>
+    <a class='item' data-tab='resources'>Resources</a>
   </nav>
 
   {{! Sheet Body }}
@@ -112,6 +124,65 @@
               value='{{system.roll.diceBonus}}'
               data-dtype='String'
             />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{! Resources Tab }}
+    <div class='tab resources' data-group='primary' data-tab='resources'>
+      <div class='resources-management'>
+        <h3>Resources Contributed</h3>
+        <p>Define what resources this part contributes to the mech (e.g., "heat sink": 2, "power": 1)</p>
+        
+        <div class='resources-list'>
+          {{#each system.resources as |value key|}}
+            <div class='resource-entry grid grid-3col'>
+              <div class='resource-name'>
+                <label class='resource-label'>Resource Name</label>
+                <input type='text' 
+                       value='{{key}}' 
+                       data-resource-key='{{key}}'
+                       data-dtype='String'
+                       placeholder='e.g. heat sink, power, etc.'
+                       readonly />
+              </div>
+              <div class='resource-value'>
+                <label class='resource-label'>Value</label>
+                <input type='number' 
+                       name='system.resources.{{key}}' 
+                       value='{{value}}' 
+                       min='0'
+                       data-dtype='Number' />
+              </div>
+              <div class='resource-controls'>
+                <button type='button' class='remove-resource' data-resource-key='{{key}}'>
+                  <i class='fas fa-trash'></i> Remove
+                </button>
+              </div>
+            </div>
+          {{else}}
+            <div class='no-resources'>
+              <p><em>This part doesn't contribute any resources yet.</em></p>
+            </div>
+          {{/each}}
+        </div>
+        
+        <div class='add-resource'>
+          <div class='grid grid-3col'>
+            <div>
+              <label class='resource-label'>New Resource Name</label>
+              <input type='text' id='new-resource-name' placeholder='e.g. heat sink' />
+            </div>
+            <div>
+              <label class='resource-label'>Value</label>
+              <input type='number' id='new-resource-value' value='1' min='0' />
+            </div>
+            <div class='resource-controls'>
+              <button type='button' class='add-resource-button'>
+                <i class='fas fa-plus'></i> Add Resource
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -12,6 +12,20 @@ export default class itbPart extends itbItemBase {
     schema.totalWeight = new fields.NumberField({ required: true, nullable: false, initial: 0, min: 0 });
     schema.location = new fields.StringField({ required: false, nullable: true, initial: "light" });
     schema.mechID = new fields.StringField({ required: true, nullable: false, initial: "0" }); //used to identify holding mech. "0" is the unattached inventory state
+    
+    // Resources that this part contributes (e.g., "heat sink": 2, "cooling": 1)
+    schema.resources = new fields.ObjectField({ 
+      required: false, 
+      nullable: true, 
+      initial: {} 
+    });
+    
+    // Whether this part is currently enabled/active
+    schema.enabled = new fields.BooleanField({ 
+      required: true, 
+      nullable: false, 
+      initial: true 
+    });
 
     // Break down roll formula into three independent fields
     schema.roll = new fields.SchemaField({

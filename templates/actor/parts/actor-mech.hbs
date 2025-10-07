@@ -3,6 +3,25 @@
   {{!-- We can remove the arm position slider since it's not needed with columns --}}
 </div>
 
+{{!-- Resource Totals Display --}}
+{{#if mechResourceTotals}}
+  <div class="mech-resource-totals">
+    <h3>Mech Resources</h3>
+    <div class="resource-totals-grid">
+      {{#each mechResourceTotals as |value key|}}
+        <div class="resource-total">
+          <span class="resource-name">{{key}}:</span>
+          <span class="resource-value">{{value}}</span>
+        </div>
+      {{else}}
+        <div class="no-resources">
+          <em>No resources available from active parts.</em>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+{{/if}}
+
 {{!-- Column-based Body Layout --}}
 <div class="body-layout">
   {{!-- Left Column: Left Arm --}}

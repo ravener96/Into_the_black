@@ -80,6 +80,7 @@ export class itbItemSheet extends ItemSheet {
     // If this is a mech item, prepare body part items
     if (this.item.type === 'mech') {
       this._prepareMechBodyParts(context);
+      this._calculateMechResourceTotals(context);
     }
 
     return context;
@@ -162,6 +163,44 @@ export class itbItemSheet extends ItemSheet {
     context.items_leg_l = items_leg_l;
   }
 
+  /**
+   * Calculate resource totals for the mech
+   * @param {object} context The context object to mutate
+   */
+  _calculateMechResourceTotals(context) {
+    const resourceTotals = {};
+    const mechID = this.item.system.mechID;
+    
+    // Get the character that owns this mech
+    const character = this.item.parent;
+    if (!character) {
+      context.mechResourceTotals = resourceTotals;
+      return;
+    }
+    
+    // Find all enabled parts that belong to this mech
+    const mechParts = character.items.filter(item => 
+      item.type === 'part' && 
+      item.system.mechID === mechID && 
+      item.system.enabled
+    );
+    
+    // Sum up all resources from enabled parts
+    for (const part of mechParts) {
+      if (part.system.resources) {
+        for (const [resourceName, value] of Object.entries(part.system.resources)) {
+          if (resourceTotals[resourceName]) {
+            resourceTotals[resourceName] += value;
+          } else {
+            resourceTotals[resourceName] = value;
+          }
+        }
+      }
+    }
+    
+    context.mechResourceTotals = resourceTotals;
+  }
+
   /* -------------------------------------------- */
 
   /** @override */
@@ -206,6 +245,18 @@ export class itbItemSheet extends ItemSheet {
         this.render(false);
       }
     });
+    
+    // Add listener for item creation
+    if (this._itemCreateHook) {
+      Hooks.off('createItem', this._itemCreateHook);
+    }
+    
+    this._itemCreateHook = Hooks.on('createItem', (item, options, userId) => {
+      // Only re-render if the created item belongs to our character and is a part
+      if (item.parent?.id === character.id && item.type === 'part') {
+        this.render(false);
+      }
+    });
   }
 
   /** @override */
@@ -219,6 +270,11 @@ export class itbItemSheet extends ItemSheet {
     if (this._itemDeleteHook) {
       Hooks.off('deleteItem', this._itemDeleteHook);
       this._itemDeleteHook = null;
+    }
+    
+    if (this._itemCreateHook) {
+      Hooks.off('createItem', this._itemCreateHook);
+      this._itemCreateHook = null;
     }
     
     return super.close(options);
@@ -249,9 +305,17 @@ export class itbItemSheet extends ItemSheet {
     // Handle item editing
     html.on('click', '.item-edit', this._onItemEdit.bind(this));
 
+    // Handle resource management for parts
+    if (this.item.type === 'part') {
+      html.on('click', '.add-resource-button', this._onAddResource.bind(this));
+      html.on('click', '.remove-resource', this._onRemoveResource.bind(this));
+    }
+
     // Handle drag and drop for reordering items
     if (this.item.type === 'mech') {
       this._activateDragDrop(html);
+      // Handle part enabled/disabled toggles
+      html.on('change', '.part-enabled-toggle', this._onPartToggle.bind(this));
     }
   }
 
@@ -473,6 +537,35 @@ export class itbItemSheet extends ItemSheet {
   }
 
   /**
+   * Handle part enabled/disabled toggle on mech sheet
+   * @param {Event} event - The toggle change event
+   * @private
+   */
+  async _onPartToggle(event) {
+    event.preventDefault();
+    
+    const toggle = event.currentTarget;
+    const itemId = toggle.dataset.itemId;
+    const enabled = toggle.checked;
+    
+    // Get the character that owns this mech
+    const character = this.item.parent;
+    if (!character) return;
+    
+    const item = character.items.get(itemId);
+    if (item && item.type === 'part') {
+      await item.update({ 'system.enabled': enabled });
+      
+      // Re-render the sheet to update resource totals
+      this.render(false);
+      
+      // Optionally show a notification
+      const status = enabled ? 'enabled' : 'disabled';
+      ui.notifications.info(`${item.name} has been ${status}.`);
+    }
+  }
+
+  /**
    * Handle equipping a mech to a character
    * @param {Event} event - The button click event
    * @private
@@ -497,5 +590,57 @@ export class itbItemSheet extends ItemSheet {
     });
     
     ui.notifications.info(`Mech "${this.item.name}" (ID: ${mechId}) has been equipped to ${character.name}.`);
+  }
+
+  /**
+   * Handle adding a new resource to a part
+   * @param {Event} event - The button click event
+   * @private
+   */
+  async _onAddResource(event) {
+    event.preventDefault();
+    
+    const nameInput = event.currentTarget.closest('.add-resource').querySelector('#new-resource-name');
+    const valueInput = event.currentTarget.closest('.add-resource').querySelector('#new-resource-value');
+    
+    const resourceName = nameInput.value.trim();
+    const resourceValue = parseInt(valueInput.value) || 1;
+    
+    if (!resourceName) {
+      ui.notifications.warn('Please enter a resource name.');
+      return;
+    }
+    
+    const resources = foundry.utils.duplicate(this.item.system.resources || {});
+    
+    // Check if the resource already exists
+    if (resources[resourceName]) {
+      ui.notifications.warn(`Resource "${resourceName}" already exists.`);
+      return;
+    }
+    
+    resources[resourceName] = resourceValue;
+    
+    await this.item.update({ 'system.resources': resources });
+    
+    // Clear the inputs
+    nameInput.value = '';
+    valueInput.value = '1';
+  }
+
+  /**
+   * Handle removing a resource from a part
+   * @param {Event} event - The button click event
+   * @private
+   */
+  async _onRemoveResource(event) {
+    event.preventDefault();
+    
+    const resourceKey = event.currentTarget.dataset.resourceKey;
+    const resources = foundry.utils.duplicate(this.item.system.resources || {});
+    
+    delete resources[resourceKey];
+    
+    await this.item.update({ 'system.resources': resources });
   }
 }

@@ -243,6 +243,43 @@ export class itbActorSheet extends ActorSheet {
     // Add unassigned items to context
     context.unassignedItems = unassignedItems;
     context.mechs = mechs;
+    
+    // Calculate resource totals for the equipped mech
+    context.mechResourceTotals = this._calculateMechResources(currentMechID);
+  }
+
+  /**
+   * Calculate total resources for the currently equipped mech
+   * @param {string} currentMechID - The ID of the currently equipped mech
+   * @returns {Object} Object containing resource totals
+   * @private
+   */
+  _calculateMechResources(currentMechID) {
+    const resourceTotals = {};
+    
+    if (currentMechID === "0") return resourceTotals;
+    
+    // Find all enabled parts that belong to the current mech
+    const mechParts = this.actor.items.filter(item => 
+      item.type === 'part' && 
+      item.system.mechID === currentMechID && 
+      item.system.enabled
+    );
+    
+    // Sum up all resources from enabled parts
+    for (const part of mechParts) {
+      if (part.system.resources) {
+        for (const [resourceName, value] of Object.entries(part.system.resources)) {
+          if (resourceTotals[resourceName]) {
+            resourceTotals[resourceName] += value;
+          } else {
+            resourceTotals[resourceName] = value;
+          }
+        }
+      }
+    }
+    
+    return resourceTotals;
   }
 
   /* -------------------------------------------- */
@@ -322,6 +359,10 @@ export class itbActorSheet extends ActorSheet {
           this.render(false);
         }
       }
+      // Also re-render if a part belonging to this actor was updated (for resource calculations)
+      if (item.parent?.id === this.actor.id && item.type === 'part') {
+        this.render(false);
+      }
     });
   }
 
@@ -374,6 +415,9 @@ export class itbActorSheet extends ActorSheet {
 
     // Rollable abilities.
     html.on('click', '.rollable', this._onRoll.bind(this));
+
+    // Handle part enabled/disabled toggles
+    html.on('change', '.part-enabled-toggle', this._onPartToggle.bind(this));
 
     // Handle item quantity changes
     html.on('change', '.item-quantity-input', (ev) => {
@@ -546,6 +590,28 @@ export class itbActorSheet extends ActorSheet {
       },
       default: "cancel"
     }).render(true);
+  }
+
+  /**
+   * Handle part enabled/disabled toggle
+   * @param {Event} event - The toggle change event
+   * @private
+   */
+  async _onPartToggle(event) {
+    event.preventDefault();
+    
+    const toggle = event.currentTarget;
+    const itemId = toggle.dataset.itemId;
+    const enabled = toggle.checked;
+    
+    const item = this.actor.items.get(itemId);
+    if (item && item.type === 'part') {
+      await item.update({ 'system.enabled': enabled });
+      
+      // Optionally show a notification
+      const status = enabled ? 'enabled' : 'disabled';
+      ui.notifications.info(`${item.name} has been ${status}.`);
+    }
   }
 
   /**
