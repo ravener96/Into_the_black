@@ -51,13 +51,13 @@
     -->
     {{#each items as |item id|}}
       <li class='item flexrow' data-item-id='{{item._id}}'>
-        <div class='item-toggle'>
-          <input type='checkbox' 
-                 class='part-enabled-toggle' 
-                 data-item-id='{{item._id}}'
-                 {{#if item.system.enabled}}checked{{/if}}
-                 title='Enable/Disable this part' />
-        </div>
+        
+        <input type='checkbox' 
+                class='part-enabled-toggle' 
+                data-item-id='{{item._id}}'
+                {{#if item.system.enabled}}checked{{/if}}
+                title='Enable/Disable this part' />
+        
         <div class='item-name {{#unless item.system.enabled}}disabled{{/unless}}'>
           <div class='item-image'>
           <a

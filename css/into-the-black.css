@@ -113,15 +113,19 @@
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid #ddd;
   border-radius: 4px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: auto;
 }
 
 .item-resources.consumable .resource-input {
-  width: 50px;
-  padding: 2px 2px;
+  width: 40px;
+  padding: 2px 4px;
   border: 1px solid #ccc;
-  border-radius: 1px;
+  border-radius: 3px;
   font-size: 11px;
-  text-align: right;
+  text-align: center;
+  margin: 0;
 }
 
 .item-resources.consumable .resource-input.active {
