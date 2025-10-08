@@ -74,15 +74,34 @@
           </div>
           <h4>{{item.name}}</h4>
           {{#if item.system.resources}}
-            <div class='item-resources'>
-              {{#each item.system.resources as |value key|}}
-                {{#if ../item.system.enabled}}
-                  <span class='resource-tag active'>{{key}}: {{value}}</span>
-                {{else}}
-                  <span class='resource-tag inactive'>{{key}}: {{value}}</span>
-                {{/if}}
-              {{/each}}
-            </div>
+            {{#if (eq item.system.resourceType "consumable")}}
+              <div class='item-resources consumable'>
+                {{#each item.system.resources as |value key|}}
+                  {{#if ../item.system.enabled}}
+                    <input type='number' 
+                           name='system.resources.{{key}}' 
+                           value='{{value}}' 
+                           min='0'
+                           class='resource-input active'
+                           data-item-id='{{../item._id}}'
+                           data-resource-key='{{key}}'
+                           title='{{key}}' />
+                  {{else}}
+                    <input type='number' 
+                           name='system.resources.{{key}}' 
+                           value='{{value}}' 
+                           min='0'
+                           class='resource-input inactive'
+                           data-item-id='{{../item._id}}'
+                           data-resource-key='{{key}}'
+                           title='{{key}}'
+                           disabled />
+                  {{/if}}
+                {{/each}}
+              </div>
+            {{else if (eq item.system.resourceType "static")}}
+              {{!-- Static resources are hidden in the mech view --}}
+            {{/if}}
           {{/if}}
         </div>
         <div class='item-controls'>

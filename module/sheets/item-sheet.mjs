@@ -168,13 +168,17 @@ export class itbItemSheet extends ItemSheet {
    * @param {object} context The context object to mutate
    */
   _calculateMechResourceTotals(context) {
-    const resourceTotals = {};
+    const staticResourceTotals = {};
+    const consumableResourceTotals = {};
     const mechID = this.item.system.mechID;
     
     // Get the character that owns this mech
     const character = this.item.parent;
     if (!character) {
-      context.mechResourceTotals = resourceTotals;
+      context.mechStaticResourceTotals = staticResourceTotals;
+      context.mechConsumableResourceTotals = consumableResourceTotals;
+      // Keep the old property for backward compatibility
+      context.mechResourceTotals = staticResourceTotals;
       return;
     }
     
@@ -185,23 +189,29 @@ export class itbItemSheet extends ItemSheet {
       item.system.enabled
     );
     
-    // Sum up all resources from enabled parts
+    // Sum up all resources from enabled parts, separated by type
     for (const part of mechParts) {
       if (part.system.resources && typeof part.system.resources === 'object') {
+        const isConsumable = part.system.resourceType === 'consumable';
+        const targetTotals = isConsumable ? consumableResourceTotals : staticResourceTotals;
+        
         for (const [resourceName, value] of Object.entries(part.system.resources)) {
           // Only include resources with valid names and positive values
           if (resourceName && resourceName.trim() !== '' && typeof value === 'number' && value > 0) {
-            if (resourceTotals[resourceName]) {
-              resourceTotals[resourceName] += value;
+            if (targetTotals[resourceName]) {
+              targetTotals[resourceName] += value;
             } else {
-              resourceTotals[resourceName] = value;
+              targetTotals[resourceName] = value;
             }
           }
         }
       }
     }
     
-    context.mechResourceTotals = resourceTotals;
+    context.mechStaticResourceTotals = staticResourceTotals;
+    context.mechConsumableResourceTotals = consumableResourceTotals;
+    // Keep the old property for backward compatibility (static resources)
+    context.mechResourceTotals = staticResourceTotals;
   }
 
   /* -------------------------------------------- */
@@ -319,6 +329,8 @@ export class itbItemSheet extends ItemSheet {
       this._activateDragDrop(html);
       // Handle part enabled/disabled toggles
       html.on('change', '.part-enabled-toggle', this._onPartToggle.bind(this));
+      // Handle resource value changes for consumable parts
+      html.on('change', '.resource-input', this._onResourceValueChange.bind(this));
     }
   }
 
@@ -565,6 +577,37 @@ export class itbItemSheet extends ItemSheet {
       // Optionally show a notification
       const status = enabled ? 'enabled' : 'disabled';
       ui.notifications.info(`${item.name} has been ${status}.`);
+    }
+  }
+
+  /**
+   * Handle resource value changes for consumable parts on mech sheet
+   * @param {Event} event - The input change event
+   * @private
+   */
+  async _onResourceValueChange(event) {
+    event.preventDefault();
+    
+    const input = event.currentTarget;
+    const itemId = input.dataset.itemId;
+    const resourceKey = input.dataset.resourceKey;
+    const newValue = parseInt(input.value) || 0;
+    
+    // Get the character that owns this mech
+    const character = this.item.parent;
+    if (!character) return;
+    
+    const item = character.items.get(itemId);
+    if (item && item.type === 'part' && item.system.resourceType === 'consumable') {
+      const resources = foundry.utils.duplicate(item.system.resources || {});
+      resources[resourceKey] = newValue;
+      
+      await item.update({ 'system.resources': resources });
+      
+      // Re-render the sheet to update resource totals
+      this.render(false);
+      
+      ui.notifications.info(`${item.name} ${resourceKey} updated to ${newValue}.`);
     }
   }
 

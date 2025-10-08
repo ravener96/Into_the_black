@@ -20,6 +20,14 @@ export default class itbPart extends itbItemBase {
       initial: {} 
     });
     
+    // Resource type - "static" or "consumable"
+    schema.resourceType = new fields.StringField({ 
+      required: true, 
+      nullable: false, 
+      initial: "static",
+      choices: ["static", "consumable"]
+    });
+    
     // Whether this part is currently enabled/active
     schema.enabled = new fields.BooleanField({ 
       required: true, 

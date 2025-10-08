@@ -13,7 +13,7 @@
           value='{{item.name}}'
           placeholder='Name'
         /></h1>
-      <div class='grid grid-3col'>
+      <div class='grid grid-4col'>
         <div class='resource'>
           <label class='resource-label'>Quantity</label>
           <input
@@ -40,6 +40,13 @@
             {{#if system.enabled}}checked{{/if}}
             data-dtype='Boolean'
           />
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Resource Type</label>
+          <select name='system.resourceType' data-dtype='String'>
+            <option value='static' {{#if (eq system.resourceType "static")}}selected{{/if}}>Static</option>
+            <option value='consumable' {{#if (eq system.resourceType "consumable")}}selected{{/if}}>Consumable</option>
+          </select>
         </div>
       </div>
       <div class='grid grid-3col'>
