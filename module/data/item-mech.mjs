@@ -95,16 +95,20 @@ export default class itbMech extends itbItemBase {
   prepareDerivedData() {
     super.prepareDerivedData();
     
-    // No longer need to generate mechID here - handled in _onCreate
+    //Only generate mechID for items owned by actors
+    if (this.parent.parent && (!this.mechID || this.mechID === "" || this.mechID === 0 || this.mechID === "0" ||  this.mechID === 'NaN' || Number.isNaN(this.mechID))) {
+      this.parent.update({'system.mechID': foundry.utils.randomID()});
+    }
+    
   }
 
   _onCreate(data, options, userId) {
     super._onCreate?.(data, options, userId);
     
     // Generate a unique mechID when the item is created
-    // Also handle legacy numeric values (0) for backward compatibility
-    if (!this.mechID || this.mechID === "" || this.mechID === 0 || this.mechID === "0" ||  this.mechID === 'NaN' || Number.isNaN(this.mechID)) {
-      this.parent?.update({'system.mechID': foundry.utils.randomID()});
+    // Only if the item is owned by an actual Actor (not compendium)
+    if (this.parent instanceof Actor && (!this.mechID || this.mechID === "" || this.mechID === 0 || this.mechID === "0" ||  this.mechID === 'NaN' || Number.isNaN(this.mechID))) {
+      this.parent.update({'system.mechID': foundry.utils.randomID()});
     }
   }
 }
