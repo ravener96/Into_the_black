@@ -684,6 +684,16 @@ export class itbActorSheet extends ActorSheet {
     if (targetElement) {
       targetLocation = targetElement.dataset.location;
     }
+
+    //If the item dropped is a mech-item and the actor is a mech-actor
+    if (data.data && data.data.type === 'mech' && this.actor.type === 'mech') {
+      //check the number of mechs the actor has, if it's more than 1, prevent the drop and show a notification
+      const existingMechs = this.actor.items.filter(i => i.type === 'mech');
+      if (existingMechs.length >= 1) {
+        ui.notifications.warn("This mech already has a mech item. You cannot have more than one mech item per mech.");
+        return null;
+      }
+    }
     
     // Check if this is a move within the same actor
     const isSameActor = data.actorId === this.actor.id;
