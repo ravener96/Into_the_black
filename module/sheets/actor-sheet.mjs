@@ -60,6 +60,11 @@ export class itbActorSheet extends ActorSheet {
       this._prepareItems(context);
     }
 
+    // Prepare Mech data and items.
+    if (actorData.type == 'mech') {
+      this._prepareItems(context);
+    }
+
     // Enrich biography info for display
     // Enrichment turns text like `[[/r 1d20]]` into buttons
     context.enrichedBiography = await TextEditor.enrichHTML(

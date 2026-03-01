@@ -49,6 +49,7 @@ Hooks.once('init', function () {
   // with the Character/NPC as part of super.defineSchema()
   CONFIG.Actor.dataModels = {
     character: models.itbCharacter,
+    mech: models.itbMechActor,
     npc: models.itbNPC
   }
   CONFIG.Item.documentClass = itbItem;

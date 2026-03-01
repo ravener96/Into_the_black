@@ -30,6 +30,7 @@
   "TYPES": {
     "Actor": {
       "character": "Character",
+      "mech": "Mech",
       "npc": "NPC"
     },
     "Item": {

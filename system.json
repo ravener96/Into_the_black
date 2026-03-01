@@ -54,6 +54,9 @@
       "character": {
         "htmlFields": ["details.bio", "details.gmnotes"]
       },
+      "mech": {
+        "htmlFields": ["details.bio", "details.gmnotes"]
+      },
       "npc": {
         "htmlFields": ["details.bio", "details.gmnotes"]
       }

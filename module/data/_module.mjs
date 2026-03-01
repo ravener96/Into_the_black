@@ -1,6 +1,7 @@
 // Export Actors
 export {default as itbActorBase} from "./base-actor.mjs";
 export {default as itbCharacter} from "./actor-character.mjs";
+export {default as itbMechActor} from "./actor-mech.mjs";
 export {default as itbNPC} from "./actor-npc.mjs";
 
 // Export Items
