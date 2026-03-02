@@ -47,6 +47,7 @@
     {{!-- Default tab is specified in actor-sheet.mjs --}}
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="items">Items</a>
+    <a class="mech" data-tab="mech">Mech</a>
     <a class="item" data-tab="effects">Effects</a>
   </nav>
 
@@ -62,6 +63,11 @@
     {{!-- Owned Items Tab --}}
     <div class="tab items" data-group="primary" data-tab="items">
        {{> "systems/into-the-black/templates/actor/parts/actor-items.hbs"}}
+    </div>
+
+    {{!-- Owned Mech Tab --}}
+    <div class="tab mech" data-group="primary" data-tab="mech">
+       {{> "systems/into-the-black/templates/actor/parts/actor-mech.hbs"}}
     </div>
 
     {{!-- Active Effects Tab --}}

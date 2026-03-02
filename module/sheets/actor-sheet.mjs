@@ -449,10 +449,6 @@ export class itbActorSheet extends ActorSheet {
       html.find('li.item').each((i, li) => {
         if (li.classList.contains('inventory-header')) return;
         
-        // Check if this item is in the mech tab - if so, don't make it draggable
-        const isInMechTab = li.closest('.tab.mech') !== null;
-        if (isInMechTab) return;
-        
         li.setAttribute('draggable', true);
         li.addEventListener('dragstart', handler, false);
       });
@@ -655,8 +651,6 @@ export class itbActorSheet extends ActorSheet {
   }
 
   _onDragStart(event) {
-    console.log("Drop data structure:", event.dataTransfer.getData("text/plain"));
-    // This is the item that was dragged
     const li = event.currentTarget;
     if (event.target.classList.contains("content-link")) return;
 
@@ -665,16 +659,36 @@ export class itbActorSheet extends ActorSheet {
     const item = this.actor.items.get(itemId);
     if (!item) return;
     
+    // Convert item to plain object and ensure clean data
+    const itemData = item.toObject();
+    // Ensure the _id matches what we expect
+    itemData._id = item.id;
+    
     // Set the drag data
-    event.dataTransfer.setData("text/plain", JSON.stringify({
+    // Include isTokenSheet flag to indicate if this came from a token sheet
+    const dragData = {
       type: "Item",
       uuid: item.uuid,
-      actorId: this.actor.id,  // This is needed to identify the source
-      data: item.toObject()
-    }));
+      actorId: this.actor.id,
+      isTokenSheet: this.token != null,  // True if this is a token sheet
+      data: itemData
+    };
+    
+    // If this is a token sheet, also store the token ID
+    if (this.token) {
+      dragData.tokenId = this.token.id;
+    }
+    
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
   async _onDropItem(event, data) {
+    // Ensure we have valid data to work with - must have either data.data (item object) or a uuid (for dragging)
+    if (!data) {
+      console.warn('Received drop event with no data');
+      return null;
+    }
+
     console.log("Drop item:", data);
     
     // Get the target list to determine where the item is being dropped
@@ -699,78 +713,164 @@ export class itbActorSheet extends ActorSheet {
     const isSameActor = data.actorId === this.actor.id;
     
     if (isSameActor && data.data) {
-      // If it's the same actor, we want to avoid duplication regardless of where it's dropped
+      // If it's the same actor and we have item data, handle update only
       let itemId = data.data._id;
       const item = this.actor.items.get(itemId);
       
-      if (item) {
-        // Always update the location if we have a targetLocation
-        if (targetLocation && item.system.location !== targetLocation) {
-          const updateData = {'system.location': targetLocation};
-          
-          // If moving from mech to inventory, reset mechID to "0" 
-          if (data.source === 'mech-sheet' && item.type === 'part') {
-            updateData['system.mechID'] = "0";
-          }
-          
-          return await item.update(updateData);
-        } else {
+      if (item && targetLocation && item.system.location !== targetLocation) {
+        // Update location if different
+        const updateData = {'system.location': targetLocation};
+        
+        // If moving from mech to inventory, reset mechID to "0" 
+        if (data.source === 'mech-sheet' && item.type === 'part') {
+          updateData['system.mechID'] = "0";
+        }
+        
+        return await item.update(updateData);
+      }
+      // For same-actor drops without location change, don't process
+      return null;
+    } else if (isSameActor) {
+      // Same actor but no item data means this shouldn't happen
+      return null;
+    } else {
+      // For cross-actor transfers or external items
+      console.log("Drop from different actor:", { actorId: data.actorId, thisActorId: this.actor.id, hasData: !!data.data });
+      
+      // Check if this is a drop from another actor (has actorId and it's different) or external (no actorId)
+      const isActorTransfer = data.actorId && data.actorId !== this.actor.id;
+      
+      if (isActorTransfer && data.data) {
+        // This is a transfer from another actor - handle it ourselves to ensure no duplication
+        const sourceActorId = data.actorId;
+        const itemId = data.data._id;
+        
+        console.log("Processing actor transfer:", { sourceActorId, itemId, targetActorId: this.actor.id });
+        
+        // Prepare item data for creation
+        const itemData = foundry.utils.deepClone(data.data);
+        // Remove the _id to ensure a fresh item is created
+        delete itemData._id;
+        
+        if (targetLocation) {
+          itemData.system = itemData.system || {};
+          itemData.system.location = targetLocation;
+        }
+        
+        // Use this.document to get the current sheet's actor (respects token independence)
+        const targetActor = this.document;
+        if (!targetActor) {
+          console.error("Target actor not found");
           return null;
         }
-      }
-    } else {
-      // For cross-actor transfers or dropping on non-location elements
-      // If we found a target location and have item data to update for a new item
-      if (targetLocation && data.data) {
-        // Update the item data with the new location before it's added
-        data.data.system = data.data.system || {};
-        data.data.system.location = targetLocation;
-      }
-      
-      // Call the base implementation to add the item to this actor
-      const dropResult = await super._onDropItem(event, data);
-
-      // Remove the item from the source actor only if it was dragged from another actor
-      if (!isSameActor && data.actorId) {
-        const sourceActor = game.actors.get(data.actorId);
-        if (sourceActor) {
-          // Try to get the item ID from the drag data
-          let itemId = data.data?._id;
-          // Fallback: try to extract from uuid if not present
-          if (!itemId && data.uuid) {
-            const parts = data.uuid.split(".");
-            itemId = parts[parts.length - 1];
+        
+        // Create the item on the target actor
+        const createdItems = await targetActor.createEmbeddedDocuments('Item', [itemData]);
+        console.log("Created items:", createdItems);
+        
+        // Auto-equip if mech
+        if (targetActor.type === 'mech' && itemData.type === 'mech' && createdItems.length > 0) {
+          await targetActor.update({ 'system.equippedMechID': createdItems[0].system.mechID });
+        }
+        
+        // Now delete from source actor
+        let sourceActor = null;
+        
+        // If this came from a token sheet, get the token's actor
+        if (data.isTokenSheet && data.tokenId) {
+          const sourceToken = canvas.tokens.get(data.tokenId);
+          if (sourceToken) {
+            sourceActor = sourceToken.actor;
+            console.log("Source is a token sheet, using token actor:", { tokenId: data.tokenId });
           }
-          const originalItem = sourceActor.items.get(itemId);
-          if (originalItem) {
-            // Special handling for mech transfers - move all associated parts
-            if (originalItem.type === 'mech') {
-              const mechID = originalItem.system.mechID;
-              
-              // Find all parts that belong to this mech
+        }
+        
+        // Fallback to world actor if not a token sheet or token not found
+        if (!sourceActor) {
+          sourceActor = game.actors.get(sourceActorId);
+          console.log("Source is a world actor");
+        }
+        
+        if (sourceActor) {
+          const sourceItem = sourceActor.items.get(itemId);
+          if (sourceItem) {
+            console.log("Deleting from source:", { sourceActorId, itemId });
+            
+            // Handle mech transfers - also move associated parts
+            if (sourceItem.type === 'mech') {
+              const mechID = sourceItem.system.mechID;
               const associatedParts = sourceActor.items.filter(item => 
                 item.type === 'part' && item.system.mechID === mechID
               );
               
               if (associatedParts.length > 0) {
-                // Create copies of all associated parts on the destination actor
-                const partData = associatedParts.map(part => part.toObject());
-                await this.actor.createEmbeddedDocuments('Item', partData);
+                // Create copies of parts on target
+                const partData = associatedParts.map(part => {
+                  const obj = foundry.utils.deepClone(part.toObject());
+                  delete obj._id;  // Ensure fresh IDs
+                  if (targetLocation) obj.system.location = targetLocation;
+                  return obj;
+                });
+                await targetActor.createEmbeddedDocuments('Item', partData);
                 
-                // Delete all associated parts from the source actor
+                // Delete parts from source
                 const partIds = associatedParts.map(part => part.id);
                 await sourceActor.deleteEmbeddedDocuments('Item', partIds);
                 
-                ui.notifications.info(`Moved mech "${originalItem.name}" and ${associatedParts.length} associated parts to ${this.actor.name}.`);
+                ui.notifications.info(`Moved mech "${sourceItem.name}" and ${associatedParts.length} associated parts to ${targetActor.name}.`);
               }
             }
             
-            await originalItem.delete();
+            // Delete the item from source
+            await sourceActor.deleteEmbeddedDocuments('Item', [itemId]);
+          } else {
+            console.warn("Source item not found:", { sourceActorId, itemId });
           }
+        } else {
+          console.warn("Source actor not found:", sourceActorId);
+        }
+        
+        return createdItems[0] || true;
+      } else {
+        // External drop (from compendium, etc) - handle item creation directly
+        console.log("External drop from compendium");
+        
+        if (data.data) {
+          // Clone the item data to avoid modifying the original
+          const itemData = foundry.utils.deepClone(data.data);
+          
+          // Remove the _id to ensure a new item is created
+          delete itemData._id;
+          
+          // Clear any compendium-related flags that might cause issues
+          if (itemData.flags && itemData.flags.core && itemData.flags.core.sourceId) {
+            delete itemData.flags.core.sourceId;
+          }
+          
+          // Set the location if provided
+          if (targetLocation) {
+            itemData.system = itemData.system || {};
+            itemData.system.location = targetLocation;
+          }
+          
+          // Create the item on the target actor using this.document to respect token sheets
+          const createdItems = await this.document.createEmbeddedDocuments('Item', [itemData]);
+          
+          // If item was created successfully, do a full update to ensure it's properly finalized
+          if (createdItems.length > 0) {
+            const createdItem = createdItems[0];
+            // Update the item to ensure flags and ownership are properly set
+            await createdItem.update({ 'flags.core.sourceId': null });
+            console.log("Created and finalized compendium item:", createdItem.id);
+            return createdItem;
+          }
+          return true;
+        } else {
+          // Fallback for unusual cases
+          console.log("External drop without item data, using base class");
+          return await super._onDropItem(event, data);
         }
       }
-
-      return dropResult;
     }
   }
 

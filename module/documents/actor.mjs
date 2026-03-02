@@ -66,4 +66,39 @@ export class itbActor extends Actor {
     return result;
   }
 
+  /**
+   * Override to handle automatic mech equipping for mech actors
+   */
+  async _onCreateEmbeddedDocuments(embeddedName, documents, result, options, userId) {
+    await super._onCreateEmbeddedDocuments(embeddedName, documents, result, options, userId);
+    
+    // Auto-equip mech item for mech actors
+    if (embeddedName === "Item" && this.type === "mech") {
+      for (const doc of documents) {
+        if (doc.type === "mech") {
+          // Automatically equip this mech
+          await this.update({ "system.equippedMechID": doc.system.mechID });
+          ui.notifications.info(`Mech "${doc.name}" has been equipped to ${this.name}.`);
+          break; // Only one mech allowed
+        }
+      }
+    }
+  }
+
+  /**
+   * Ensure mech actors always have their mech equipped
+   */
+  async prepareData() {
+    // Auto-equip logic for mech actors before data preparation
+    if (this.type === "mech") {
+      const mechItems = this.items.filter(i => i.type === "mech");
+      if (mechItems.length > 0 && this.system.equippedMechID !== mechItems[0].system.mechID) {
+        // Silently equip the mech without notification (this runs on every render)
+        await this.update({ "system.equippedMechID": mechItems[0].system.mechID }, { render: false });
+      }
+    }
+    
+    super.prepareData();
+  }
+
 }
