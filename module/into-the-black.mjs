@@ -7,6 +7,7 @@ import { itbItemSheet } from './sheets/item-sheet.mjs';
 // Import helper/utility classes and constants.
 import { preloadHandlebarsTemplates } from './helpers/templates.mjs';
 import { ITB } from './helpers/config.mjs';
+import { ActorTooltip } from './helpers/actor-tooltip.mjs';
 // Import DataModel classes
 import * as models from './data/_module.mjs';
 
@@ -101,6 +102,9 @@ Handlebars.registerHelper('eq', function (a, b) {
 /* -------------------------------------------- */
 
 Hooks.once('ready', function () {
+  // Initialize token hover tooltip behavior
+  ActorTooltip.initializeCanvasTooltips();
+
   // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
   Hooks.on('hotbarDrop', (bar, data, slot) => createItemMacro(data, slot));
 });
