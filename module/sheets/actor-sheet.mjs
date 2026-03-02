@@ -804,11 +804,11 @@ export class itbActorSheet extends ActorSheet {
               );
               
               if (associatedParts.length > 0) {
-                // Create copies of parts on target
+                // Create copies of parts on target, preserving their original location
                 const partData = associatedParts.map(part => {
                   const obj = foundry.utils.deepClone(part.toObject());
                   delete obj._id;  // Ensure fresh IDs
-                  if (targetLocation) obj.system.location = targetLocation;
+                  // Don't overwrite location - preserve the part's body part assignment
                   return obj;
                 });
                 await targetActor.createEmbeddedDocuments('Item', partData);
