@@ -143,8 +143,10 @@ export class ActorTooltip {
    */
   static calculateDistance(token1, token2) {
     try {
-      // Measure using token centers; this respects scene grid rules in current Foundry versions
-      const distance = canvas.grid.measureDistance(token1.center, token2.center);
+      // Use measurePath (v12+ API) instead of deprecated measureDistance
+      const path = canvas.grid.measurePath([token1.center, token2.center]);
+      // Use the distance property which respects scene grid rules
+      const distance = path.distance;
       return Math.round(distance * 10) / 10; // Round to 1 decimal place
     } catch (e) {
       console.warn('Error measuring grid distance:', e);
