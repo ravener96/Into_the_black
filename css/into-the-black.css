@@ -6,6 +6,7 @@
 
 .chat-message {
   background-color: #218838;
+  --chat-message-background: #218838;
   color: yellow;
 }
 
