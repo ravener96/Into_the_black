@@ -84,29 +84,21 @@ export class ActorTooltip {
 
     // Build tooltip content
     let tooltipHTML = `
-      <div class="itb-actor-tooltip">
-        <div class="tooltip-content">
-          <div class="tooltip-name">${actor.name}</div>
-          <div class="tooltip-type">${actor.type}</div>
+      <div class="itb-actor-tooltip itb-utility-dark itb-utility-fade-in">
+        <strong>${actor.name}</strong> (${actor.type})
     `;
 
     if (activeActor) {
-      tooltipHTML += `<div class="tooltip-separator"></div>`;
-      tooltipHTML += `<div class="tooltip-label">Active Actor:</div>`;
-      tooltipHTML += `<div class="tooltip-value">${activeActor.name}</div>`;
-      tooltipHTML += `<div class="tooltip-label">Target Actor:</div>`;
-      tooltipHTML += `<div class="tooltip-value">${actor.name}</div>`;
+      tooltipHTML += `<hr style="margin: 6px 0; border: 0; border-top: 1px solid rgba(168, 153, 104, 0.3);">`;
+      tooltipHTML += `<div><strong>Active:</strong> ${activeActor.name}</div>`;
+      tooltipHTML += `<div><strong>Target:</strong> ${actor.name}</div>`;
     }
 
     if (distance !== null) {
-      tooltipHTML += `<div class="tooltip-label">Distance:</div>`;
-      tooltipHTML += `<div class="tooltip-value">${distance}</div>`;
+      tooltipHTML += `<div><strong>Distance:</strong> ${distance}</div>`;
     }
 
-    tooltipHTML += `
-        </div>
-      </div>
-    `;
+    tooltipHTML += `</div>`;
 
     // Remove old tooltip if exists
     if (this.currentTooltip) {

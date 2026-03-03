@@ -1,15 +1,15 @@
 {{!-- Adjustable configuration --}}
-<div class="layout-config">
+<div class="layout-config itb-utility-light">
   {{!-- We can remove the arm position slider since it's not needed with columns --}}
 </div>
 
 {{!-- Resource Totals Display --}}
 {{#if mechResourceTotals}}
-  <div class="mech-resource-totals">
+  <div class="mech-resource-totals itb-utility-light">
     <h3>Total Mech Resources</h3>
     <div class="resource-totals-grid">
       {{#each mechResourceTotals as |value key|}}
-        <div class="resource-total">
+        <div class="resource-total itb-utility-lighter">
           <span class="resource-name">{{key}}:</span>
           <span class="resource-value">{{value}}</span>
         </div>

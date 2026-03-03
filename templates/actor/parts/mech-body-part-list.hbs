@@ -1,5 +1,5 @@
 {{!-- filepath: templates/actor/parts/mech-body-part-list.hbs --}}
-<div class="body-part {{bodyClass}}{{#if showStats}}{{#if (eq bodyPartHP 0)}} zero-hp{{/if}}{{/if}}" style="margin-top: {{topPad}}px;">
+<div class="body-part itb-utility-border {{bodyClass}}{{#if showStats}}{{#if (eq bodyPartHP 0)}} zero-hp{{/if}}{{/if}}" style="margin-top: {{topPad}}px;">
   <h3>{{bodyLabel}}</h3>
   {{#if showStats}}
   <div class="body-part-stats">
@@ -80,7 +80,7 @@
           --}}
           {{#if item.system.resources}}
             {{#if (eq item.system.resourceType "consumable")}}
-              <div class='item-resources consumable'>
+              <div class='item-resources consumable itb-utility-lighter'>
                 {{#each item.system.resources as |value key|}}
                   {{#if ../item.system.enabled}}
                     <input type='number' 

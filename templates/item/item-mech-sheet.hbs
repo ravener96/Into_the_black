@@ -105,12 +105,12 @@
     <div class='tab bodyparts' data-group='primary' data-tab='bodyparts'>
       {{!-- Resource Totals Display --}}
       {{#if (or mechStaticResourceTotals mechConsumableResourceTotals)}}
-        <div class="mech-resource-totals">
+        <div class="mech-resource-totals itb-utility-light">
           {{#if mechStaticResourceTotals}}
             <h3>Static Resources</h3>
             <div class="resource-totals-grid">
               {{#each mechStaticResourceTotals as |value key|}}
-                <div class="resource-total">
+                <div class="resource-total itb-utility-lighter">
                   <span class="resource-name">{{key}}:</span>
                   <span class="resource-value">{{value}}</span>
                 </div>
@@ -126,7 +126,7 @@
             <h3>Consumable Resources</h3>
             <div class="resource-totals-grid">
               {{#each mechConsumableResourceTotals as |value key|}}
-                <div class="resource-total">
+                <div class="resource-total itb-utility-lighter">
                   <span class="resource-name">{{key}}:</span>
                   <span class="resource-value">{{value}}</span>
                 </div>
@@ -139,7 +139,7 @@
           {{/if}}
         </div>
       {{else}}
-        <div class="mech-resource-totals">
+        <div class="mech-resource-totals itb-utility-light">
           <h3>Resources</h3>
           <div class="no-resources">
             <em>No resources available from active parts.</em>

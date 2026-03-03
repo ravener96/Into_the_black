@@ -81,6 +81,7 @@
   <nav class='sheet-tabs tabs' data-group='primary'>
     <a class='item' data-tab='description'>Description</a>
     <a class='item' data-tab='attributes'>Attributes</a>
+    <a class='item' data-tab='roll'>Roll</a>
     <a class='item' data-tab='resources'>Resources</a>
   </nav>
 
@@ -136,6 +137,48 @@
       </div>
     </div>
 
+    <div class='tab roll' data-group='primary' data-tab='roll'>
+      <div class='grid grid-2col'>
+        <div class='resource'>
+          <label class='resource-label'>Attack Identity</label>
+          <select name='system.attack.identity' data-dtype='String'>
+            <option value='utility' {{#if (eq system.attack.identity "utility")}}selected{{/if}}>Utility</option>
+            <option value='attack' {{#if (eq system.attack.identity "attack")}}selected{{/if}}>Attack</option>
+          </select>
+        </div>
+        <div class='resource'>
+          <label class='resource-label'>Current Target</label>
+          <input type='text' value='{{selectedTargetName}}' readonly />
+        </div>
+      </div>
+
+      <div class='resource'>
+        <label class='resource-label'>Attack Roll (d20 + modifier)</label>
+        <input
+          type='text'
+          name='system.attack.attackModifier'
+          value='{{system.attack.attackModifier}}'
+          placeholder='e.g. +2 or @str.mod+@lvl'
+          data-dtype='String'
+        />
+      </div>
+
+      <div class='resource'>
+        <label class='resource-label'>Damage Formula</label>
+        <input
+          type='text'
+          name='system.attack.damageFormula'
+          value='{{system.attack.damageFormula}}'
+          placeholder='e.g. 2d6+1d4+3'
+          data-dtype='String'
+        />
+      </div>
+
+      <div class='resource'>
+        <button type='button' class='create-attack-card-button'>Create Attack Card</button>
+      </div>
+    </div>
+
     {{! Resources Tab }}
     <div class='tab resources' data-group='primary' data-tab='resources'>
       <div class='resources-management'>
@@ -144,7 +187,7 @@
         
         <div class='resources-list'>
           {{#each system.resources as |value key|}}
-            <div class='resource-entry grid grid-3col'>
+            <div class='resource-entry itb-utility-light grid grid-3col'>
               <div class='resource-name'>
                 <label class='resource-label'>Resource Name</label>
                 <input type='text' 

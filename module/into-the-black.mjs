@@ -107,6 +107,13 @@ Hooks.once('ready', function () {
 
   // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
   Hooks.on('hotbarDrop', (bar, data, slot) => createItemMacro(data, slot));
+
+  // Handle Attack/Damage button clicks on ITB attack chat cards
+  Hooks.on('renderChatMessage', (message, html) => {
+    html.on('click', '.itb-attack-chat-button', (event) => {
+      onAttackCardRoll(event, message);
+    });
+  });
 });
 
 /* -------------------------------------------- */
@@ -147,6 +154,63 @@ async function createItemMacro(data, slot) {
   }
   game.user.assignHotbarMacro(macro, slot);
   return false;
+}
+
+function buildAttackFormula(modifier) {
+  const trimmedModifier = `${modifier ?? ''}`.trim();
+  if (!trimmedModifier || trimmedModifier === '0') return '1d20';
+  if (trimmedModifier.startsWith('+') || trimmedModifier.startsWith('-')) {
+    return `1d20${trimmedModifier}`;
+  }
+  return `1d20+${trimmedModifier}`;
+}
+
+async function onAttackCardRoll(event, message) {
+  event.preventDefault();
+
+  const button = event.currentTarget;
+  const rollType = button.dataset.rollType;
+  const itemUuid = button.dataset.itemUuid;
+
+  if (!itemUuid || !rollType) return;
+
+  const item = await fromUuid(itemUuid);
+  if (!item) {
+    ui.notifications.warn('Could not find the item for this attack card.');
+    return;
+  }
+
+  const attackModifier = item.system.attack?.attackModifier ?? '0';
+  const damageFormula = `${item.system.attack?.damageFormula ?? ''}`.trim();
+
+  const formula = rollType === 'attack'
+    ? buildAttackFormula(attackModifier)
+    : damageFormula;
+
+  if (!formula) {
+    ui.notifications.warn(`No ${rollType} formula configured.`);
+    return;
+  }
+
+  const rollData = item.parent?.getRollData?.() ?? {};
+  const roll = await new Roll(formula, rollData).evaluate();
+  const rollHtml = await roll.render();
+
+  const wrapper = $('<div>').html(message.content);
+  const resultContainer = wrapper.find(`.itb-roll-result[data-roll-type="${rollType}"]`).first();
+
+  if (!resultContainer.length) {
+    ui.notifications.warn('Could not find a result container in this chat card.');
+    return;
+  }
+
+  resultContainer.html(rollHtml);
+  
+  // Remove the button after rolling to prevent easy re-rolls
+  const buttonToRemove = wrapper.find(`.itb-attack-chat-button[data-roll-type="${rollType}"]`).first();
+  buttonToRemove.remove();
+  
+  await message.update({ content: wrapper.html() });
 }
 
 /**

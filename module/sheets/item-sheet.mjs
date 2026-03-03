@@ -83,6 +83,8 @@ export class itbItemSheet extends ItemSheet {
       this._calculateMechResourceTotals(context);
     }
 
+    context.selectedTargetName = this._getSelectedTargetName();
+
     return context;
   }
 
@@ -318,6 +320,9 @@ export class itbItemSheet extends ItemSheet {
     // Handle item editing
     html.on('click', '.item-edit', this._onItemEdit.bind(this));
 
+    // Create chat attack card
+    html.on('click', '.create-attack-card-button', this._onCreateAttackCard.bind(this));
+
     // Handle resource management for parts
     if (this.item.type === 'part') {
       html.on('click', '.add-resource-button', this._onAddResource.bind(this));
@@ -332,6 +337,74 @@ export class itbItemSheet extends ItemSheet {
       // Handle resource value changes for consumable parts
       html.on('change', '.resource-input', this._onResourceValueChange.bind(this));
     }
+  }
+
+  _buildAttackFormula(modifier) {
+    const trimmedModifier = `${modifier ?? ''}`.trim();
+    if (!trimmedModifier || trimmedModifier === '0') return '1d20';
+    if (trimmedModifier.startsWith('+') || trimmedModifier.startsWith('-')) {
+      return `1d20${trimmedModifier}`;
+    }
+    return `1d20+${trimmedModifier}`;
+  }
+
+  _getSelectedTargetName() {
+    const targets = [...(game.user?.targets ?? [])]
+      .map((token) => token.name ?? token.document?.name ?? token.actor?.name)
+      .filter(Boolean);
+
+    return targets.length > 0 ? targets.join(', ') : 'No target selected';
+  }
+
+  async _onCreateAttackCard(event) {
+    event.preventDefault();
+
+    const attackIdentity = this.item.system.attack?.identity ?? 'utility';
+    if (attackIdentity !== 'attack') {
+      ui.notifications.warn('Set Attack Identity to "Attack" before creating an attack card.');
+      return;
+    }
+
+    const attackModifier = this.item.system.attack?.attackModifier ?? '0';
+    const attackFormula = this._buildAttackFormula(attackModifier);
+    const damageFormula = `${this.item.system.attack?.damageFormula ?? ''}`.trim();
+
+    if (!damageFormula) {
+      ui.notifications.warn('Please provide a damage formula in the Roll tab.');
+      return;
+    }
+
+    const targetName = foundry.utils.escapeHTML(this._getSelectedTargetName());
+    const enrichedDescription = await TextEditor.enrichHTML(this.item.system.description ?? '', {
+      secrets: this.document.isOwner,
+      async: true,
+      rollData: this.item.getRollData(),
+      relativeTo: this.item,
+    });
+
+    const content = `
+      <div class="itb-attack-card itb-utility-dark">
+        <div class="itb-attack-header">
+          <div><strong>Attack:</strong> ${foundry.utils.escapeHTML(this.item.name)}</div>
+          <div><strong>Target:</strong> ${targetName}</div>
+        </div>
+        <div>${enrichedDescription}</div>
+        <div class="itb-roll-group itb-utility-dark">
+          <button type="button" class="itb-attack-chat-button" data-roll-type="attack" data-item-uuid="${this.item.uuid}">Roll Attack (${foundry.utils.escapeHTML(attackFormula)})</button>
+          <div class="itb-roll-result" data-roll-type="attack"></div>
+        </div>
+        <div class="itb-roll-group itb-utility-dark">
+          <button type="button" class="itb-attack-chat-button" data-roll-type="damage" data-item-uuid="${this.item.uuid}">Roll Damage (${foundry.utils.escapeHTML(damageFormula)})</button>
+          <div class="itb-roll-result" data-roll-type="damage"></div>
+        </div>
+      </div>
+    `;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.item.parent ?? null }),
+      rollMode: game.settings.get('core', 'rollMode'),
+      content,
+    });
   }
 
   /**

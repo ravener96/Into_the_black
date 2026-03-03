@@ -19,6 +19,17 @@ export default class itbItem extends itbItemBase {
       diceBonus: new fields.StringField({ initial: "+@str.mod+ceil(@lvl / 2)" })
     });
 
+    schema.attack = new fields.SchemaField({
+      identity: new fields.StringField({
+        required: true,
+        nullable: false,
+        initial: 'utility',
+        choices: ['utility', 'attack'],
+      }),
+      attackModifier: new fields.StringField({ required: true, nullable: false, initial: '0' }),
+      damageFormula: new fields.StringField({ required: true, nullable: false, initial: '1d6' }),
+    });
+
     schema.formula = new fields.StringField({ blank: true });
 
     return schema;
